@@ -41,6 +41,7 @@ public class SimpleGameClient {
 		String info = game.toString();
 		System.out.println(info);
 		System.out.println(g);
+		MyGameGUI gui=new MyGameGUI(game);
 		// the list of fruits should be considered in your solution
 		Iterator<String> f_iter = game.getFruits().iterator();
 		while(f_iter.hasNext()) {System.out.println(f_iter.next());}
