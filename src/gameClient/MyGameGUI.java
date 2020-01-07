@@ -21,15 +21,16 @@ public class MyGameGUI implements Runnable
 		g = new DGraph();
 		g.init(game1.getGraph());
 		this.mc=g.getMC();
+		this.paint();
+		this.drawFruits();
+		this.drawRobot();
 		Thread change=new Thread(this);
 		change.start();
-		this.paint();
 	}
 
 	public static void main(String[] args) 
 	{
-		double we=TwoNumAfter(1.535345346346);
-		System.out.println(we);
+		
 	}
 
 	@Override
@@ -112,6 +113,63 @@ public class MyGameGUI implements Runnable
 		double tmp=w*100;
 		int fin=(int) tmp;
 		return (fin/100.0);
+	}
+	private void drawFruits()
+	{
+		Iterator<String> f_iter = game.getFruits().iterator();
+		while(f_iter.hasNext())
+		{
+			String fruit=f_iter.next();
+			boolean t=true;int type=0;double posLeft=0;double posRight=0;
+			for(int i=0;i<fruit.length()&&t;i++)
+			{
+				if(fruit.charAt(i)=='t'&&fruit.charAt(i+1)=='y'&&fruit.charAt(i+2)=='p')
+				{//find the type
+					fruit=fruit.substring(i+6,fruit.length());
+					int index=fruit.indexOf(',');
+					type=Integer.parseInt(fruit.substring(0,index));
+					i=0;
+				}
+				if(fruit.charAt(i)=='p'&&fruit.charAt(i+1)=='o'&&fruit.charAt(i+2)=='s')
+				{//find the position 
+					t=false;
+					fruit=fruit.substring(i+6,fruit.length()-3);
+					int index=fruit.indexOf(',');
+					posLeft=Double.parseDouble(fruit.substring(0,index));
+					fruit=fruit.substring(index+1,fruit.length());
+					index=fruit.indexOf(',');
+					posRight=Double.parseDouble(fruit.substring(0,index));
+					if(type==1)
+						StdDraw.picture(posLeft, posRight,"apple.png", 0.00075, 0.00075);
+					else
+						StdDraw.picture(posLeft, posRight,"banana.png", 0.00075, 0.00075);
+				}
+
+			}
+		}
+	}
+	private void drawRobot()
+	{
+		String robots = game.toString();
+		boolean t=true;int countRobot=0;
+		int edgeSize=g.nodeSize();
+		for(int i=0;i<robots.length()&&t;i++)
+		{
+			if(robots.charAt(i)=='r'&&robots.charAt(i+1)=='o'&&robots.charAt(i+2)=='b')
+			{
+				t=false;
+				int index=robots.indexOf('}');
+				countRobot=Integer.parseInt(robots.substring(i+8, index));
+			}
+		}
+		for(int i=0;i<countRobot;i++)
+		{
+			int random=(int) (Math.random()*edgeSize);
+			game.addRobot(random);
+			StdDraw.setPenColor(Color.MAGENTA);
+			StdDraw.setPenRadius(0.02);
+			StdDraw.point(g.getNode(random).getLocation().x(),g.getNode(random).getLocation().y());
+		}
 	}
 
 }
