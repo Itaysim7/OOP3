@@ -26,9 +26,10 @@ public class MyGameGUI implements Runnable
 		this.paint();
 	}
 
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
+	public static void main(String[] args) 
+	{
+		double we=TwoNumAfter(1.535345346346);
+		System.out.println(we);
 	}
 
 	@Override
@@ -85,7 +86,7 @@ public class MyGameGUI implements Runnable
 			StdDraw.setPenColor(Color.BLUE);
 			StdDraw.setPenRadius(0.020);
 			StdDraw.point(point.getLocation().x(),point.getLocation().y());
-			StdDraw.text(point.getLocation().x(),point.getLocation().y()+1, (""+point.getKey()));
+			StdDraw.text(point.getLocation().x(),point.getLocation().y()+epsilon/10, (""+point.getKey()));
 			
 			try {//in case point does not have edge the function getE return exception, and we do not want exception we just do not want it to paint
 				for(Iterator<edge_data> edgeIter=g.getE(point.getKey()).iterator();edgeIter.hasNext();) 
@@ -93,34 +94,24 @@ public class MyGameGUI implements Runnable
 					edge_data line=edgeIter.next();
 					node_data dest=g.getNode(line.getDest());
 					node_data src=point;
-					StdDraw.setPenColor(Color.RED);
+					double weight=TwoNumAfter(line.getWeight());
+					StdDraw.setPenColor(Color.DARK_GRAY);
 					StdDraw.setPenRadius(0.005);
 					StdDraw.line(src.getLocation().x(),src.getLocation().y(), dest.getLocation().x(),dest.getLocation().y());
-					StdDraw.text(((src.getLocation().x()+dest.getLocation().x())/2),((src.getLocation().y()+dest.getLocation().y())/2),(""+line.getWeight()));
-					
+					StdDraw.text(src.getLocation().x()+(dest.getLocation().x()-src.getLocation().x())/4,src.getLocation().y()+(dest.getLocation().y()-src.getLocation().y())/4,(""+weight));
+					//draw yellow point that represent the destination of the edge
 					StdDraw.setPenColor(Color.YELLOW);
 					StdDraw.setPenRadius(0.015);
-					double x=Math.abs(src.getLocation().x()-dest.getLocation().x())/10.0;
-					double y=Math.abs(src.getLocation().y()-dest.getLocation().y())/10.0;
-					
-					if(src.getLocation().x()<dest.getLocation().x()) {
-						
-						if(src.getLocation().y()<dest.getLocation().y())
-							StdDraw.point((int)dest.getLocation().x()-x,(int)dest.getLocation().y()-y);
-						else
-							StdDraw.point((int)dest.getLocation().x()-x,(int)dest.getLocation().y()+y);
-					}
-					else {
-						if(src.getLocation().y()<dest.getLocation().y())
-							StdDraw.point((int)dest.getLocation().x()+x,(int)dest.getLocation().y()-y);
-						else
-							StdDraw.point((int)dest.getLocation().x()+x,(int)dest.getLocation().y()+y);
-					}
-					
+					StdDraw.point(dest.getLocation().x()+(src.getLocation().x()-dest.getLocation().x())/10,dest.getLocation().y()+(src.getLocation().y()-dest.getLocation().y())/10);
 				}
 			}
 			catch (Exception e) {}
 		}
+	}
+	private static double TwoNumAfter(double w) {
+		double tmp=w*100;
+		int fin=(int) tmp;
+		return (fin/100.0);
 	}
 
 }
