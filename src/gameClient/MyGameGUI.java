@@ -1,175 +1,184 @@
 package gameClient;
 
 import java.awt.Color;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.Iterator;
+
+import javax.swing.JOptionPane;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import Server.game_service;
 import dataStructure.DGraph;
 import dataStructure.edge_data;
-import dataStructure.graph;
 import dataStructure.node_data;
+import obj.Fruit;
+import obj.GameServer;
+import utils.Point3D;
 import utils.StdDraw;
 
-public class MyGameGUI implements Runnable  
+public class MyGameGUI 
 {
 	private game_service game;
 	private DGraph g;
 	private int mc;
-	public MyGameGUI(game_service game1) 
+	private double maxX=Double.NEGATIVE_INFINITY;
+	private double maxY=Double.NEGATIVE_INFINITY;
+	private double minX=Double.POSITIVE_INFINITY;
+	private double minY=Double.POSITIVE_INFINITY;
+	public MyGameGUI(game_service game1,DGraph gg) 
 	{
 		this.game=game1;
-		g = new DGraph();
-		g.init(game1.getGraph());
+		g =gg;
 		this.mc=g.getMC();
-		this.paint();
-		this.drawFruits();
-		this.drawRobot();
-		Thread change=new Thread(this);
-		change.start();
+	//	StdDraw.setGraph(g,game);
+		porpor();
+		paint();
+		drawFruits();
+		drawRobot();
 	}
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
 
-	public static void main(String[] args) 
-	{
-		
 	}
-
-	@Override
-	public void run() 
-	{
-		while(game.isRunning())
-		{
-				synchronized(this) 
-				{
-					if(mc!=g.getMC())
-					{
-						mc=g.getMC();
-						this.paint();
-					}
-				}
-				try
-				{
-					Thread.sleep(500);
-				}
-				catch(InterruptedException e)
-				{
-					e.printStackTrace();
-				}
-		}
-		
-	}
-	private void paint() 
+	public void porpor() 
 	{	
-
-		double maxX=Double.NEGATIVE_INFINITY;
-		double maxY=Double.NEGATIVE_INFINITY;
-		double minX=Double.POSITIVE_INFINITY;
-		double minY=Double.POSITIVE_INFINITY;
 		for(Iterator<node_data> verIter=g.getV().iterator();verIter.hasNext();)
 		{
-			node_data point=verIter.next();
-			if(point.getLocation().x()>maxX)
-				maxX=point.getLocation().x();
-			if(point.getLocation().y()>maxY)
-				maxY=point.getLocation().y();
-			if(point.getLocation().x()<minX)
-				minX=point.getLocation().x();
-			if(point.getLocation().y()<minY)
-				minY=point.getLocation().y();	
+			int point=verIter.next().getKey();
+			if(g.getNode(point).getLocation().x()>maxX)
+				maxX=g.getNode(point).getLocation().x();
+			if(g.getNode(point).getLocation().y()>maxY)
+				maxY=g.getNode(point).getLocation().y();
+			if(g.getNode(point).getLocation().x()<minX)
+				minX=g.getNode(point).getLocation().x();
+			if(g.getNode(point).getLocation().y()<minY)
+				minY=g.getNode(point).getLocation().y();	
 		} 
 		double epsilon=0.0025;
 		StdDraw.setCanvasSize(600,600);
-		StdDraw.setXscale(minX-epsilon,maxX+epsilon);
-		StdDraw.setYscale(minY-epsilon,epsilon+maxY);
-
+		minX=minX-epsilon;maxX=maxX+epsilon;
+		minY=minY-epsilon/4;maxY=epsilon/4+maxY;
+		StdDraw.setXscale(minX,maxX);
+		StdDraw.setYscale(minY,maxY);
+	}
+	public void paint() 
+	{	
 		for(Iterator<node_data> verIter=g.getV().iterator();verIter.hasNext();) 
 		{
-			node_data point=verIter.next();
+			int point=verIter.next().getKey();
 			StdDraw.setPenColor(Color.BLUE);
 			StdDraw.setPenRadius(0.020);
-			StdDraw.point(point.getLocation().x(),point.getLocation().y());
-			StdDraw.text(point.getLocation().x(),point.getLocation().y()+epsilon/10, (""+point.getKey()));
+			StdDraw.point(g.getNode(point).getLocation().x(),g.getNode(point).getLocation().y());
+			StdDraw.text(g.getNode(point).getLocation().x(),g.getNode(point).getLocation().y()+0.00025, (""+point));
 			
 			try {//in case point does not have edge the function getE return exception, and we do not want exception we just do not want it to paint
-				for(Iterator<edge_data> edgeIter=g.getE(point.getKey()).iterator();edgeIter.hasNext();) 
+				for(Iterator<edge_data> edgeIter=g.getE(point).iterator();edgeIter.hasNext();) 
 				{
 					edge_data line=edgeIter.next();
-					node_data dest=g.getNode(line.getDest());
-					node_data src=point;
+					int dest=g.getNode(line.getDest()).getKey();
+					int src=point;
 					double weight=TwoNumAfter(line.getWeight());
 					StdDraw.setPenColor(Color.DARK_GRAY);
 					StdDraw.setPenRadius(0.005);
-					StdDraw.line(src.getLocation().x(),src.getLocation().y(), dest.getLocation().x(),dest.getLocation().y());
-					StdDraw.text(src.getLocation().x()+(dest.getLocation().x()-src.getLocation().x())/4,src.getLocation().y()+(dest.getLocation().y()-src.getLocation().y())/4,(""+weight));
+					StdDraw.line(g.getNode(src).getLocation().x(),g.getNode(src).getLocation().y(), g.getNode(dest).getLocation().x(),g.getNode(dest).getLocation().y());
+					StdDraw.text(g.getNode(src).getLocation().x()+(g.getNode(dest).getLocation().x()-g.getNode(src).getLocation().x())/4,g.getNode(src).getLocation().y()+(g.getNode(dest).getLocation().y()-g.getNode(src).getLocation().y())/4,(""+weight));
 					//draw yellow point that represent the destination of the edge
 					StdDraw.setPenColor(Color.YELLOW);
 					StdDraw.setPenRadius(0.015);
-					StdDraw.point(dest.getLocation().x()+(src.getLocation().x()-dest.getLocation().x())/10,dest.getLocation().y()+(src.getLocation().y()-dest.getLocation().y())/10);
+					StdDraw.point(g.getNode(dest).getLocation().x()+(g.getNode(src).getLocation().x()-g.getNode(dest).getLocation().x())/10,g.getNode(dest).getLocation().y()+(g.getNode(src).getLocation().y()-g.getNode(dest).getLocation().y())/10);
 				}
 			}
 			catch (Exception e) {}
 		}
 	}
-	private static double TwoNumAfter(double w) {
+	private double TwoNumAfter(double w) 
+	{
 		double tmp=w*100;
 		int fin=(int) tmp;
 		return (fin/100.0);
 	}
+
+	private Fruit creatFruit(String str) 
+	{	
+		Gson gson = new Gson();
+		try
+		{
+			Fruit f=gson.fromJson(str, Fruit.class);
+			return f;
+		} 
+		catch ( JsonSyntaxException  e) //default value for unreadable file
+		{
+			throw new RuntimeException("wrong format for fruit");
+		}
+	}
 	private void drawFruits()
 	{
-		Iterator<String> f_iter = game.getFruits().iterator();
+		Iterator<String> f_iter=game.getFruits().iterator();
 		while(f_iter.hasNext())
 		{
 			String fruit=f_iter.next();
-			boolean t=true;int type=0;double posLeft=0;double posRight=0;
-			for(int i=0;i<fruit.length()&&t;i++)
-			{
-				if(fruit.charAt(i)=='t'&&fruit.charAt(i+1)=='y'&&fruit.charAt(i+2)=='p')
-				{//find the type
-					fruit=fruit.substring(i+6,fruit.length());
-					int index=fruit.indexOf(',');
-					type=Integer.parseInt(fruit.substring(0,index));
-					i=0;
-				}
-				if(fruit.charAt(i)=='p'&&fruit.charAt(i+1)=='o'&&fruit.charAt(i+2)=='s')
-				{//find the position 
-					t=false;
-					fruit=fruit.substring(i+6,fruit.length()-3);
-					int index=fruit.indexOf(',');
-					posLeft=Double.parseDouble(fruit.substring(0,index));
-					fruit=fruit.substring(index+1,fruit.length());
-					index=fruit.indexOf(',');
-					posRight=Double.parseDouble(fruit.substring(0,index));
-					if(type==1)
-						StdDraw.picture(posLeft, posRight,"apple.png", 0.00075, 0.00075);
-					else
-						StdDraw.picture(posLeft, posRight,"banana.png", 0.00075, 0.00075);
-				}
-
-			}
+			fruit=fruit.substring(9,fruit.length()-1);
+			System.out.println(fruit);
+			Fruit f=creatFruit(fruit);
+			int type=f.getType();
+			Point3D pos=f.getPos();
+			if(type==1)
+				StdDraw.picture(pos.x(), pos.y(),"apple.png", 0.0005, 0.0005);
+			else
+				StdDraw.picture(pos.x(), pos.y(),"banana.png", 0.0005, 0.0005);
 		}
 	}
-	private void drawRobot()
+	
+	private  GameServer creatGameServer(String str) 
+	{	
+		str=str.substring(14,str.length()-1);
+		System.out.println(str);
+		Gson gson = new Gson();
+		try
+		{
+			GameServer game=gson.fromJson(str, GameServer.class);
+			return game;
+		} 
+		catch ( JsonSyntaxException  e) //default value for unreadable file
+		{
+			throw new RuntimeException("wrong format for GameServe");
+		}
+	}
+	
+	public void drawRobot()
 	{
-		String robots = game.toString();
-		boolean t=true;int countRobot=0;
-		int edgeSize=g.nodeSize();
-		for(int i=0;i<robots.length()&&t;i++)
+		GameServer gameSer=creatGameServer(game.toString());
+		int countRobot=gameSer.getRobots();
+		int numOfVer=g.nodeSize();
+		Object key[]=new Object[numOfVer];
+		int j=0;
+		for(Iterator<node_data> verIter=g.getV().iterator();verIter.hasNext();) 
 		{
-			if(robots.charAt(i)=='r'&&robots.charAt(i+1)=='o'&&robots.charAt(i+2)=='b')
-			{
-				t=false;
-				int index=robots.indexOf('}');
-				countRobot=Integer.parseInt(robots.substring(i+8, index));
-			}
+			int point=verIter.next().getKey();
+			key[j]=point;j++;
 		}
-		for(int i=0;i<countRobot;i++)
+		for(int i=1;i<=countRobot;i++)
 		{
-			int random=(int) (Math.random()*edgeSize);
-			game.addRobot(random);
+			int v=(Integer)JOptionPane.showInputDialog(null,"choose a vertex to pud robot "+i,"Add robot",JOptionPane.QUESTION_MESSAGE,null,key,null);
+			game.addRobot(v);
 			StdDraw.setPenColor(Color.MAGENTA);
-			StdDraw.setPenRadius(0.02);
-			StdDraw.point(g.getNode(random).getLocation().x(),g.getNode(random).getLocation().y());
+			StdDraw.setPenRadius(0.025);
+			StdDraw.point(g.getNode(v).getLocation().x(),g.getNode(v).getLocation().y());		
 		}
+
 	}
+	private node_data findNode(double x,double y) 
+	{
+		for(Iterator<node_data> verIter=g.getV().iterator();verIter.hasNext();) {
+			int nd=verIter.next().getKey();
+			if(Math.abs(x-g.getNode(nd).getLocation().x())<=1&&Math.abs(y-g.getNode(nd).getLocation().y())<=1)
+				return g.getNode(nd);
+		}
+		return null;
+	}
+	
 
 }
