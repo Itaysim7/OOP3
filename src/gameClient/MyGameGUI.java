@@ -1,9 +1,12 @@
 package gameClient;
 
 import java.awt.Color;
+import java.awt.Robot;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 
@@ -16,6 +19,7 @@ import dataStructure.edge_data;
 import dataStructure.node_data;
 import obj.Fruit;
 import obj.GameServer;
+import obj.Pacman;
 import utils.Point3D;
 import utils.StdDraw;
 
@@ -168,6 +172,13 @@ public class MyGameGUI
 			StdDraw.setPenRadius(0.025);
 			StdDraw.point(g.getNode(v).getLocation().x(),g.getNode(v).getLocation().y());		
 		}
+		List<String> rob=game.getRobots();
+		for(int i=0;i<rob.size();i++)
+		{
+			System.out.println(rob.get(i));
+			Pacman itay = creatRobot(rob.get(i));
+			System.out.println(itay.getSrc());
+		}
 
 	}
 	private node_data findNode(double x,double y) 
@@ -178,6 +189,22 @@ public class MyGameGUI
 				return g.getNode(nd);
 		}
 		return null;
+	}
+	
+	private Pacman creatRobot(String str) 
+	{	
+		str=str.substring(9,str.length()-1);
+		System.out.println(str);
+		Gson gson = new Gson();
+		try
+		{
+			Pacman rob=gson.fromJson(str, Pacman.class);
+			return rob;
+		} 
+		catch ( JsonSyntaxException  e) //default value for unreadable file
+		{
+			throw new RuntimeException("wrong format for Robot");
+		}
 	}
 	
 

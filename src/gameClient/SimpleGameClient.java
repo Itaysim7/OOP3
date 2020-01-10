@@ -51,10 +51,6 @@ public class SimpleGameClient {
 			// the list of fruits should be considered in your solution
 			Iterator<String> f_iter = game.getFruits().iterator();
 			while(f_iter.hasNext()) {System.out.println(f_iter.next());}	
-			int src_node = 0;  // arbitrary node, you should start at one of the fruits
-			for(int a = 0;a<rs;a++) {
-				game.addRobot(src_node+a);
-			}
 		}
 		catch (JSONException e) {e.printStackTrace();}
 		MyGameGUI gui=new MyGameGUI(game,gg);
