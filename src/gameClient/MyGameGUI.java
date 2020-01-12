@@ -37,6 +37,7 @@ public class MyGameGUI implements Runnable
 	private double minX=Double.POSITIVE_INFINITY;
 	private double minY=Double.POSITIVE_INFINITY;
 	private String typegame;
+	private int scenario;
 	private List<Fruit> fruits;
 	private List<Pacman> robots;
 
@@ -47,6 +48,7 @@ public class MyGameGUI implements Runnable
 		paint();
 		fruits=creatFruits();
 		drawFruits();
+		StdDraw.show();
 		if(typegame.equals("Automatic"))
 			addRobotToTheGameAuto();
 		else
@@ -58,12 +60,11 @@ public class MyGameGUI implements Runnable
 	}
 	public void init()
 	{
-		StdDraw.show();
 		//////choose level////
 		Object level[]=new Object[24];
 		for(int i=0;i<level.length;i++)
 			level[i]=i;
-		int scenario=(Integer)JOptionPane.showInputDialog(null,"Choose a level between 0-23","Level", JOptionPane.QUESTION_MESSAGE,null,level,null);
+		scenario=(Integer)JOptionPane.showInputDialog(null,"Choose a level between 0-23","Level", JOptionPane.QUESTION_MESSAGE,null,level,null);
 		game = Game_Server.getServer(scenario);
 		//////choose game type////
 		Object type[]=new Object[2];type[0]="by mouse";type[1]="Automatic";
@@ -107,7 +108,7 @@ public class MyGameGUI implements Runnable
 		double epsilon=0.0025;
 		StdDraw.setCanvasSize(600,600);
 		minX=minX-epsilon;maxX=maxX+epsilon;
-		minY=minY-epsilon/4;maxY=epsilon/4+maxY;
+		minY=minY-epsilon/2;maxY=epsilon/2+maxY;
 		StdDraw.setXscale(minX,maxX);
 		StdDraw.setYscale(minY,maxY);
 	}
@@ -142,6 +143,13 @@ public class MyGameGUI implements Runnable
 			}
 			catch (Exception e) {}
 		}
+		long time=game.timeToEnd();
+		GameServer result=creatGameServer(game.toString());
+		StdDraw.setPenColor(Color.BLACK);
+		StdDraw.setPenRadius(0.020);
+		StdDraw.text(minX+(maxX-minX)*0.85,minY+(maxY-minY)*0.95, "The time is:"+time/1000);
+		StdDraw.text(minX+(maxX-minX)*0.15,minY+(maxY-minY)*0.95, "Level:"+scenario);
+		StdDraw.text(minX+(maxX-minX)*0.50,minY+(maxY-minY)*0.95, "grade:"+result.getGrade());
 	}
 	private double TwoNumAfter(double w) 
 	{
@@ -170,7 +178,7 @@ public class MyGameGUI implements Runnable
 			Pacman f=robots.get(i);
 			StdDraw.setPenColor(Color.MAGENTA);
 			StdDraw.setPenRadius(0.025);
-			StdDraw.point(g.getNode(f.getSrc()).getLocation().x(),g.getNode(f.getSrc()).getLocation().y());		
+			StdDraw.point(f.getPos().x(),f.getPos().y());	
 		}
 	}
 
@@ -289,20 +297,6 @@ public class MyGameGUI implements Runnable
 		for(int i=0;i<rob.size();i++)
 		{
 			Pacman itay = creatRobot(rob.get(i));
-//			
-////			int dest=0;
-//			try 
-//			{
-//				for(Iterator<edge_data> edgeIter=g.getE(itay.getSrc()).iterator();edgeIter.hasNext();)
-//				{
-//					edge_data e=edgeIter.next();
-//					dest=e.getDest();
-//					break;
-//				}	
-//			}
-//			catch(NullPointerException e)
-//			{}
-//			itay.setDest(-1);
 			robotemp.add(itay);
 		}
 		return robotemp;
