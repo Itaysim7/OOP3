@@ -1,52 +1,95 @@
 package gameClient;
 
 import java.awt.Color;
-import java.awt.Robot;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
+import Server.Game_Server;
 import Server.game_service;
+import algorithms.Graph_Algo;
 import dataStructure.DGraph;
 import dataStructure.edge_data;
 import dataStructure.node_data;
 import obj.Fruit;
 import obj.GameServer;
 import obj.Pacman;
-import utils.Point3D;
+import oop_dataStructure.oop_edge_data;
+import oop_dataStructure.oop_graph;
 import utils.StdDraw;
 
-public class MyGameGUI 
+public class MyGameGUI implements Runnable
 {
 	private game_service game;
 	private DGraph g;
-	private int mc;
+	private Graph_Algo ga;
 	private double maxX=Double.NEGATIVE_INFINITY;
 	private double maxY=Double.NEGATIVE_INFINITY;
 	private double minX=Double.POSITIVE_INFINITY;
 	private double minY=Double.POSITIVE_INFINITY;
-	public MyGameGUI(game_service game1,DGraph gg) 
-	{
-		this.game=game1;
-		g =gg;
-		this.mc=g.getMC();
-	//	StdDraw.setGraph(g,game);
-		porpor();
-		paint();
-		drawFruits();
-		drawRobot();
-	}
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+	private String typegame;
+	private List<Fruit> fruits;
+	private List<Pacman> robots;
 
+	public MyGameGUI()
+	{
+		StdDraw.enableDoubleBuffering();
+		init();
+		paint();
+		fruits=creatFruits();
+		drawFruits();
+		if(typegame.equals("Automatic"))
+			addRobotToTheGameAuto();
+		else
+			addRobotToTheGameByMouse();
+		robots=creatRobotsList();
+		drawRobot();
+		Thread t=new Thread(this);
+		t.start();
 	}
+	public void init()
+	{
+		StdDraw.show();
+		//////choose level////
+		Object level[]=new Object[24];
+		for(int i=0;i<level.length;i++)
+			level[i]=i;
+		int scenario=(Integer)JOptionPane.showInputDialog(null,"Choose a level between 0-23","Level", JOptionPane.QUESTION_MESSAGE,null,level,null);
+		game = Game_Server.getServer(scenario);
+		//////choose game type////
+		Object type[]=new Object[2];type[0]="by mouse";type[1]="Automatic";
+		typegame=(String)JOptionPane.showInputDialog(null,"Choose type of game","type of game", JOptionPane.QUESTION_MESSAGE,null,type,null);
+		//////create graph and algo graph////
+		g=new DGraph();
+		g.init(game.getGraph());
+		ga=new Graph_Algo();
+		ga.init(g);
+		porpor();
+	}
+	public void draw()
+	{
+		StdDraw.clear();
+		paint();
+		fruits=creatFruits();
+		drawFruits();
+		robots=creatRobotsList();
+		drawRobot();
+		StdDraw.show();
+	}
+	public static void main(String[] a)
+	{
+		MyGameGUI m=new MyGameGUI();
+	}
+	
 	public void porpor() 
 	{	
 		for(Iterator<node_data> verIter=g.getV().iterator();verIter.hasNext();)
@@ -68,6 +111,8 @@ public class MyGameGUI
 		StdDraw.setXscale(minX,maxX);
 		StdDraw.setYscale(minY,maxY);
 	}
+////////draw/////////////
+	
 	public void paint() 
 	{	
 		for(Iterator<node_data> verIter=g.getV().iterator();verIter.hasNext();) 
@@ -104,8 +149,47 @@ public class MyGameGUI
 		int fin=(int) tmp;
 		return (fin/100.0);
 	}
+	
+	
+	public void drawFruits()
+	{
+		for(int i=0;i<fruits.size();i++)
+		{
+			Fruit f=fruits.get(i);
+			if(f.getType()==1)
+				StdDraw.picture(f.getPos().x(), f.getPos().y(),"apple.png", 0.0005, 0.0005);
+			else
+				StdDraw.picture(f.getPos().x(), f.getPos().y(),"banana.png", 0.0005, 0.0005);
+		}
+	}
+	
+	public void drawRobot()
+	{
+		for(int i=0;i<robots.size();i++)
+		{
+			Pacman f=robots.get(i);
+			StdDraw.setPenColor(Color.MAGENTA);
+			StdDraw.setPenRadius(0.025);
+			StdDraw.point(g.getNode(f.getSrc()).getLocation().x(),g.getNode(f.getSrc()).getLocation().y());		
+		}
+	}
 
-	private Fruit creatFruit(String str) 
+	//////create object////
+	
+	private List<Fruit> creatFruits()
+	{
+		List<Fruit> fruitstemp=new ArrayList();
+		Iterator<String> f_iter=game.getFruits().iterator();
+		while(f_iter.hasNext())
+		{
+			String fruit=f_iter.next();
+			fruit=fruit.substring(9,fruit.length()-1);
+			Fruit f=creatFruit(fruit);
+			fruitstemp.add(f);//add to the list of fruit
+		}
+		return fruitstemp;
+	}
+	private static Fruit creatFruit(String str) 
 	{	
 		Gson gson = new Gson();
 		try
@@ -118,28 +202,9 @@ public class MyGameGUI
 			throw new RuntimeException("wrong format for fruit");
 		}
 	}
-	private void drawFruits()
-	{
-		Iterator<String> f_iter=game.getFruits().iterator();
-		while(f_iter.hasNext())
-		{
-			String fruit=f_iter.next();
-			fruit=fruit.substring(9,fruit.length()-1);
-			System.out.println(fruit);
-			Fruit f=creatFruit(fruit);
-			int type=f.getType();
-			Point3D pos=f.getPos();
-			if(type==1)
-				StdDraw.picture(pos.x(), pos.y(),"apple.png", 0.0005, 0.0005);
-			else
-				StdDraw.picture(pos.x(), pos.y(),"banana.png", 0.0005, 0.0005);
-		}
-	}
-	
-	private  GameServer creatGameServer(String str) 
+	private static  GameServer creatGameServer(String str) 
 	{	
 		str=str.substring(14,str.length()-1);
-		System.out.println(str);
 		Gson gson = new Gson();
 		try
 		{
@@ -152,7 +217,21 @@ public class MyGameGUI
 		}
 	}
 	
-	public void drawRobot()
+	private static Pacman creatRobot(String str) 
+	{	
+		str=str.substring(9,str.length()-1);
+		Gson gson = new Gson();
+		try
+		{
+			Pacman rob=gson.fromJson(str, Pacman.class);
+			return rob;
+		} 
+		catch ( JsonSyntaxException  e) //default value for unreadable file
+		{
+			throw new RuntimeException("wrong format for Robot");
+		}
+	}
+	public void addRobotToTheGameByMouse()
 	{
 		GameServer gameSer=creatGameServer(game.toString());
 		int countRobot=gameSer.getRobots();
@@ -170,42 +249,130 @@ public class MyGameGUI
 			game.addRobot(v);
 			StdDraw.setPenColor(Color.MAGENTA);
 			StdDraw.setPenRadius(0.025);
-			StdDraw.point(g.getNode(v).getLocation().x(),g.getNode(v).getLocation().y());		
+			StdDraw.point(g.getNode(v).getLocation().x(),g.getNode(v).getLocation().y());
 		}
+	}
+	private void addRobotToTheGameAuto()
+	{
+		GameServer gameSer=creatGameServer(game.toString());
+		int countRobot=gameSer.getRobots();//number of robot in the game
+		int countFruit=gameSer.getFruits();//number of fruit in the game
+		int index=0;
+		//put the robot near to the fruit
+		while(countFruit>0&&countRobot>0)
+		{
+			int v=fruits.get(index).edge(g).getSrc();
+			game.addRobot(v);
+			countFruit--;countRobot--;index++;
+		}
+		//Create a list of the edge
+		int numOfVer=g.nodeSize();
+		int key[]=new int[numOfVer];
+		int j=0;
+		for(Iterator<node_data> verIter=g.getV().iterator();verIter.hasNext();) 
+		{
+			int point=verIter.next().getKey();
+			key[j]=point;j++;
+		}
+		//if there is more robot than fruit put them in a random place
+		while(countRobot>0)
+		{
+			int random=(int)(Math.random()*key.length);
+			game.addRobot(key[random]);
+			countRobot--;
+		}
+	}
+	private List<Pacman> creatRobotsList()
+	{
 		List<String> rob=game.getRobots();
+		List<Pacman>robotemp=new ArrayList();
 		for(int i=0;i<rob.size();i++)
 		{
-			System.out.println(rob.get(i));
 			Pacman itay = creatRobot(rob.get(i));
-			System.out.println(itay.getSrc());
+//			
+////			int dest=0;
+//			try 
+//			{
+//				for(Iterator<edge_data> edgeIter=g.getE(itay.getSrc()).iterator();edgeIter.hasNext();)
+//				{
+//					edge_data e=edgeIter.next();
+//					dest=e.getDest();
+//					break;
+//				}	
+//			}
+//			catch(NullPointerException e)
+//			{}
+//			itay.setDest(-1);
+			robotemp.add(itay);
 		}
-
+		return robotemp;
 	}
-	private node_data findNode(double x,double y) 
+	@Override
+	public void run() 
 	{
-		for(Iterator<node_data> verIter=g.getV().iterator();verIter.hasNext();) {
-			int nd=verIter.next().getKey();
-			if(Math.abs(x-g.getNode(nd).getLocation().x())<=1&&Math.abs(y-g.getNode(nd).getLocation().y())<=1)
-				return g.getNode(nd);
-		}
-		return null;
+		game.startGame();
+		while(game.isRunning())
+		{
+				synchronized(this) 
+				{
+					moveRobots();
+					draw();
+				}
+				try
+				{
+					Thread.sleep(100);
+				}
+				catch(InterruptedException e)
+				{
+					e.printStackTrace();
+				}
+		}		
+		String results = game.toString();
+		System.out.println("Game Over: "+results);
 	}
 	
-	private Pacman creatRobot(String str) 
-	{	
-		str=str.substring(9,str.length()-1);
-		System.out.println(str);
-		Gson gson = new Gson();
-		try
-		{
-			Pacman rob=gson.fromJson(str, Pacman.class);
-			return rob;
-		} 
-		catch ( JsonSyntaxException  e) //default value for unreadable file
-		{
-			throw new RuntimeException("wrong format for Robot");
+	private  void moveRobots()
+	{
+		List<String> log = game.move();
+		if(log!=null) {
+			long t = game.timeToEnd();
+			for(int i=0;i<log.size();i++) {
+				String robot_json = log.get(i);
+				try {
+					JSONObject line = new JSONObject(robot_json);
+					JSONObject ttt = line.getJSONObject("Robot");
+					int rid = ttt.getInt("id");
+					int src = ttt.getInt("src");
+					int dest = ttt.getInt("dest");
+				
+					if(dest==-1) {	
+						dest = nextNode(src);
+						game.chooseNextEdge(rid, dest);
+						System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
+						System.out.println(ttt);
+					}
+				} 
+				catch (JSONException e) {e.printStackTrace();}
+			}
 		}
 	}
-	
+	/**
+	 * a very simple random walk implementation!
+	 * @param g
+	 * @param src
+	 * @return
+	 */
+	private  int nextNode(int src) {
+		int ans = -1;
+		Collection<edge_data> ee = g.getE(src);
+		Iterator<edge_data> itr = ee.iterator();
+		int s = ee.size();
+		int r = (int)(Math.random()*s);
+		int i=0;
+		while(i<r) {itr.next();i++;}
+		ans = itr.next().getDest();
+		return ans;
+	}
+
 
 }

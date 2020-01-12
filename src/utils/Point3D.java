@@ -116,7 +116,7 @@ public class Point3D implements Serializable
     }
     public boolean close2equals(Point3D p2)
     {
-        return ( this.distance3D(p2) < EPS );
+        return ( this.distance3D(p2) < 0.0001 );
     }
     public boolean equalsXY (Point3D p)
     {return p._x == _x && p._y == _y;}
