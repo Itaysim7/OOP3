@@ -134,11 +134,11 @@ public class MyGameGUI implements Runnable
 					StdDraw.setPenColor(Color.DARK_GRAY);
 					StdDraw.setPenRadius(0.005);
 					StdDraw.line(g.getNode(src).getLocation().x(),g.getNode(src).getLocation().y(), g.getNode(dest).getLocation().x(),g.getNode(dest).getLocation().y());
-					StdDraw.text(g.getNode(src).getLocation().x()+(g.getNode(dest).getLocation().x()-g.getNode(src).getLocation().x())/4,g.getNode(src).getLocation().y()+(g.getNode(dest).getLocation().y()-g.getNode(src).getLocation().y())/4,(""+weight));
+//					StdDraw.text(g.getNode(src).getLocation().x()+(g.getNode(dest).getLocation().x()-g.getNode(src).getLocation().x())/4,g.getNode(src).getLocation().y()+(g.getNode(dest).getLocation().y()-g.getNode(src).getLocation().y())/4,(""+weight));
 					//draw yellow point that represent the destination of the edge
-					StdDraw.setPenColor(Color.YELLOW);
-					StdDraw.setPenRadius(0.015);
-					StdDraw.point(g.getNode(dest).getLocation().x()+(g.getNode(src).getLocation().x()-g.getNode(dest).getLocation().x())/10,g.getNode(dest).getLocation().y()+(g.getNode(src).getLocation().y()-g.getNode(dest).getLocation().y())/10);
+//					StdDraw.setPenColor(Color.YELLOW);
+//					StdDraw.setPenRadius(0.015);
+//					StdDraw.point(g.getNode(dest).getLocation().x()+(g.getNode(src).getLocation().x()-g.getNode(dest).getLocation().x())/10,g.getNode(dest).getLocation().y()+(g.getNode(src).getLocation().y()-g.getNode(dest).getLocation().y())/10);
 				}
 			}
 			catch (Exception e) {}
@@ -163,6 +163,7 @@ public class MyGameGUI implements Runnable
 	{
 		for(int i=0;i<fruits.size();i++)
 		{
+			
 			Fruit f=fruits.get(i);
 			if(f.getType()==1)
 				StdDraw.picture(f.getPos().x(), f.getPos().y(),"apple.png", 0.0005, 0.0005);
@@ -176,12 +177,11 @@ public class MyGameGUI implements Runnable
 		for(int i=0;i<robots.size();i++)
 		{
 			Pacman f=robots.get(i);
-			StdDraw.setPenColor(Color.MAGENTA);
+			StdDraw.setPenColor(Color.RED);
 			StdDraw.setPenRadius(0.025);
 			StdDraw.point(f.getPos().x(),f.getPos().y());	
 		}
 	}
-
 	//////create object////
 	
 	private List<Fruit> creatFruits()
@@ -194,6 +194,19 @@ public class MyGameGUI implements Runnable
 			fruit=fruit.substring(9,fruit.length()-1);
 			Fruit f=creatFruit(fruit);
 			fruitstemp.add(f);//add to the list of fruit
+		}
+		//sort the array by value
+		for(int i=0;i<fruitstemp.size();i++)
+		{
+			for(int j=fruitstemp.size()-1;j>i;j--)
+			{
+				if(fruitstemp.get(j).getValue()>fruitstemp.get(j-1).getValue())
+				{
+					Fruit temp=fruitstemp.get(j);
+					fruitstemp.set(j, fruitstemp.get(j-1));
+					fruitstemp.set(j-1, temp);
+				}
+			}
 		}
 		return fruitstemp;
 	}
@@ -265,11 +278,15 @@ public class MyGameGUI implements Runnable
 		GameServer gameSer=creatGameServer(game.toString());
 		int countRobot=gameSer.getRobots();//number of robot in the game
 		int countFruit=gameSer.getFruits();//number of fruit in the game
-		int index=0;
+		int index=0;int v;
 		//put the robot near to the fruit
 		while(countFruit>0&&countRobot>0)
 		{
-			int v=fruits.get(index).edge(g).getSrc();
+			int typefruit=fruits.get(index).getType();
+			if(typefruit==1)
+				v=fruits.get(index).edge(g).getSrc();
+			else
+				v=fruits.get(index).edge(g).getDest();
 			game.addRobot(v);
 			countFruit--;countRobot--;index++;
 		}
@@ -305,16 +322,19 @@ public class MyGameGUI implements Runnable
 	public void run() 
 	{
 		game.startGame();
+		int index=0;
 		while(game.isRunning())
 		{
 				synchronized(this) 
 				{
 					moveRobots();
-					draw();
+					if(index%2==0)
+						draw();
+					index++;
 				}
 				try
 				{
-					Thread.sleep(100);
+					Thread.sleep(50);
 				}
 				catch(InterruptedException e)
 				{
@@ -339,8 +359,9 @@ public class MyGameGUI implements Runnable
 					int src = ttt.getInt("src");
 					int dest = ttt.getInt("dest");
 				
-					if(dest==-1) {	
-						dest = nextNode(src);
+					if(dest==-1) 
+					{	
+						dest = bestNode(src);
 						game.chooseNextEdge(rid, dest);
 						System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
 						System.out.println(ttt);
@@ -366,6 +387,27 @@ public class MyGameGUI implements Runnable
 		while(i<r) {itr.next();i++;}
 		ans = itr.next().getDest();
 		return ans;
+	}
+	private  int bestNode(int src) 
+	{
+		double minpath=Double.POSITIVE_INFINITY;
+		
+		int dest=0;
+		for(int i=0;i<fruits.size();i++)
+		{
+			if(ga.shortestPathDist(src, fruits.get(i).edge(g).getSrc())<minpath)
+			{
+				minpath=ga.shortestPathDist(src, fruits.get(i).edge(g).getSrc());
+				if(src==fruits.get(i).edge(g).getSrc()) 
+				{
+					dest=fruits.get(i).edge(g).getDest();
+				}
+				else
+					dest=fruits.get(i).edge(g).getSrc();
+			}
+		}
+		List<node_data> node=ga.shortestPath(src, dest);
+		return node.get(1).getKey();
 	}
 
 
