@@ -38,6 +38,7 @@ public class MyGameGUI implements Runnable
 	private double minY=Double.POSITIVE_INFINITY;
 	private String typegame;
 	private int scenario;
+	private static int count=0;
 	private List<Fruit> fruits;
 	private List<Pacman> robots;
 
@@ -174,12 +175,18 @@ public class MyGameGUI implements Runnable
 	
 	public void drawRobot()
 	{
+		count++;
 		for(int i=0;i<robots.size();i++)
 		{
 			Pacman f=robots.get(i);
 			StdDraw.setPenColor(Color.RED);
 			StdDraw.setPenRadius(0.025);
-			StdDraw.point(f.getPos().x(),f.getPos().y());	
+			if(count%2==0)
+				StdDraw.picture(f.getPos().x(), f.getPos().y(),"pacmanopen.png", 0.001, 0.001);
+			else
+				StdDraw.picture(f.getPos().x(), f.getPos().y(),"pacmanclose.png", 0.001, 0.001);
+
+//			StdDraw.point(f.getPos().x(),f.getPos().y());	
 		}
 	}
 	//////create object////
@@ -328,17 +335,9 @@ public class MyGameGUI implements Runnable
 				synchronized(this) 
 				{
 					moveRobots();
-					if(index%2==0)
+					if(index%4==0)
 						draw();
 					index++;
-				}
-				try
-				{
-					Thread.sleep(50);
-				}
-				catch(InterruptedException e)
-				{
-					e.printStackTrace();
 				}
 		}		
 		String results = game.toString();
@@ -350,26 +349,24 @@ public class MyGameGUI implements Runnable
 		List<String> log = game.move();
 		if(log!=null) {
 			long t = game.timeToEnd();
-			for(int i=0;i<log.size();i++) {
-				String robot_json = log.get(i);
+			for(int i=0;i<log.size();i++)
+			{
 				try {
-					JSONObject line = new JSONObject(robot_json);
-					JSONObject ttt = line.getJSONObject("Robot");
-					int rid = ttt.getInt("id");
-					int src = ttt.getInt("src");
-					int dest = ttt.getInt("dest");
-				
+					int rid=robots.get(i).getId();
+					int src=robots.get(i).getSrc();
+					int dest=robots.get(i).getDest();
 					if(dest==-1) 
 					{	
 						dest = bestNode(src);
 						game.chooseNextEdge(rid, dest);
 						System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
-						System.out.println(ttt);
+						System.out.println((new JSONObject(log.get(i))).getJSONObject("Robot"));
 					}
 				} 
 				catch (JSONException e) {e.printStackTrace();}
 			}
 		}
+		ga.resetTagEdge();
 	}
 	/**
 	 * a very simple random walk implementation!
@@ -391,21 +388,36 @@ public class MyGameGUI implements Runnable
 	private  int bestNode(int src) 
 	{
 		double minpath=Double.POSITIVE_INFINITY;
-		
-		int dest=0;
+		int dest=0;int placeFruit=0;
+		boolean isGetDest=false;
 		for(int i=0;i<fruits.size();i++)
 		{
-			if(ga.shortestPathDist(src, fruits.get(i).edge(g).getSrc())<minpath)
+			if(fruits.get(i).edge(g).getTag()==0&&ga.shortestPathDist(src, fruits.get(i).edge(g).getSrc())<minpath)
 			{
-				minpath=ga.shortestPathDist(src, fruits.get(i).edge(g).getSrc());
-				if(src==fruits.get(i).edge(g).getSrc()) 
-				{
-					dest=fruits.get(i).edge(g).getDest();
-				}
-				else
-					dest=fruits.get(i).edge(g).getSrc();
+					placeFruit=i;
+				 	isGetDest=true;
+					minpath=ga.shortestPathDist(src, fruits.get(i).edge(g).getSrc());
+					if(src==fruits.get(i).edge(g).getSrc()) 
+					{
+						dest=fruits.get(i).edge(g).getDest();
+					}
+					else
+						dest=fruits.get(i).edge(g).getSrc();
 			}
 		}
+		if(!isGetDest)
+		{
+			System.out.println("is get dest");
+			if(src==fruits.get(0).edge(g).getSrc()) 
+			{
+				dest=fruits.get(0).edge(g).getDest();
+			}
+			else
+				dest=fruits.get(0).edge(g).getSrc();
+		}
+		
+		fruits.get(placeFruit).edge(g).setTag(1);
+		g.getEdge(fruits.get(placeFruit).edge(g).getDest(), fruits.get(placeFruit).edge(g).getSrc()).setTag(1);
 		List<node_data> node=ga.shortestPath(src, dest);
 		return node.get(1).getKey();
 	}

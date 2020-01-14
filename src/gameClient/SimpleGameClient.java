@@ -32,6 +32,7 @@ import oop_dataStructure.oop_graph;
 public class SimpleGameClient {
 	public static void main(String[] a)
 	{
+		
 		MyGameGUI g=new MyGameGUI();
 //		test1();
 		}

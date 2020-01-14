@@ -289,6 +289,25 @@ public class Graph_Algo implements graph_algorithms
 		}
 	}
 	/**
+	 * change the color of all the edges to white (0)
+	 */
+	public void resetTagEdge()
+	{
+		for(Iterator<node_data> verIter=g.getV().iterator();verIter.hasNext();)
+		{
+			int src=verIter.next().getKey();
+			try 
+			{
+				for(Iterator<edge_data> edgeIter=g.getE(src).iterator();edgeIter.hasNext();)
+				{
+					edgeIter.next().setTag(0);
+				}	
+			}
+			catch(NullPointerException e)
+			{}
+		}
+	}
+	/**
 	 * change the weight of all the vertices to infinity
 	 */
 	private void weightInfi()
