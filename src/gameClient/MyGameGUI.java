@@ -17,7 +17,11 @@ import obj.GameServer;
 import obj.Pacman;
 
 import utils.StdDraw;
-
+/**
+ * This class represents a GUI window of game 
+ * The GUI represents the moves in the graph of the robots and the fruits
+ * @author itay simhayev and lilach mor
+ */
 public class MyGameGUI implements Runnable
 {
 	private game_service game;
@@ -40,19 +44,23 @@ public class MyGameGUI implements Runnable
 		init();
 		paint();
 		create=new createObjFromJson(game);
-		fruits=create.creatFruits();
+		fruits=create.creatFruits(); //create a list of fruits
 		drawFruits();
 		StdDraw.show();
 		if(typegame.equals("Automatic"))
 			addRobotToTheGameAuto();
 		else
 			addRobotToTheGameByMouse();
-		robots=create.creatRobotsList();
+		robots=create.creatRobotsList(); //create a list of robots
 		drawRobot();
 		Thread t=new Thread(this);
 		t.start();
 	}
-	public void init()
+	/** 
+	 * The function gets from the user the level and type of game that he choose 
+	 * init the graph and the Proportions of the gui
+	 */
+	private void init()
 	{
 		//////choose level////
 		Object level[]=new Object[24];
@@ -70,7 +78,10 @@ public class MyGameGUI implements Runnable
 		ga.init(g);
 		porpor();
 	}
-	public void draw()
+	/** 
+	 * The function update the GUI by the data of the current game
+	 */
+	private void draw()
 	{
 		StdDraw.clear();
 		paint();
@@ -81,7 +92,10 @@ public class MyGameGUI implements Runnable
 		drawRobot();
 		StdDraw.show();
 	}
-	public void porpor() 
+	/** 
+	 * The function set the proportions of the GUI window
+	 */
+	private void porpor() 
 	{	
 		for(Iterator<node_data> verIter=g.getV().iterator();verIter.hasNext();)
 		{
@@ -103,10 +117,12 @@ public class MyGameGUI implements Runnable
 		StdDraw.setYscale(minY,maxY);
 	}
 ////////draw/////////////
-	
-	public void paint() 
+	/** 
+	 * The function paint the graph of the game in GUI window
+	 */
+	private void paint() 
 	{	
-		for(Iterator<node_data> verIter=g.getV().iterator();verIter.hasNext();) 
+		for(Iterator<node_data> verIter=g.getV().iterator();verIter.hasNext();) //paint all the the vertices in the graph
 		{
 			int point=verIter.next().getKey();
 			StdDraw.setPenColor(Color.BLUE);
@@ -116,7 +132,7 @@ public class MyGameGUI implements Runnable
 			
 			try {//in case point does not have edge the function getE return exception, and we do not want exception we just do not want it to paint
 				for(Iterator<edge_data> edgeIter=g.getE(point).iterator();edgeIter.hasNext();) 
-				{
+				{ //paint all the edges in the graph
 					edge_data line=edgeIter.next();
 					int dest=g.getNode(line.getDest()).getKey();
 					int src=point;
@@ -131,11 +147,14 @@ public class MyGameGUI implements Runnable
 		GameServer result=createObjFromJson.creatGameServer(game.toString());
 		StdDraw.setPenColor(Color.BLACK);
 		StdDraw.setPenRadius(0.020);
-		StdDraw.text(minX+(maxX-minX)*0.85,minY+(maxY-minY)*0.95, "The time is:"+time/1000);
-		StdDraw.text(minX+(maxX-minX)*0.15,minY+(maxY-minY)*0.95, "Level:"+scenario);
-		StdDraw.text(minX+(maxX-minX)*0.50,minY+(maxY-minY)*0.95, "grade:"+result.getGrade());
+		StdDraw.text(minX+(maxX-minX)*0.85,minY+(maxY-minY)*0.95, "The time is:"+time/1000);//paint the time on the window GUI
+		StdDraw.text(minX+(maxX-minX)*0.15,minY+(maxY-minY)*0.95, "Level:"+scenario);//paint the level on the window GUI
+		StdDraw.text(minX+(maxX-minX)*0.50,minY+(maxY-minY)*0.95, "grade:"+result.getGrade());//paint the grade on the window GUI
 	}
-	public void drawFruits()
+	/** 
+	 * The function paint the fruits of the game in a GUI window from list of fruits
+	 */
+	private void drawFruits()
 	{
 		for(int i=0;i<fruits.size();i++)
 		{
@@ -147,8 +166,10 @@ public class MyGameGUI implements Runnable
 				StdDraw.picture(f.getPos().x(), f.getPos().y(),"banana.png", 0.0005, 0.0005);
 		}
 	}
-	
-	public void drawRobot()
+	/** 
+	 * The function paint the fruits of the game in a GUI window from list of robots
+	 */
+	private void drawRobot()
 	{
 		count++;
 		for(int i=0;i<robots.size();i++)
@@ -162,20 +183,22 @@ public class MyGameGUI implements Runnable
 				StdDraw.picture(f.getPos().x(), f.getPos().y(),"pacmanclose.png", 0.001, 0.001);	
 		}
 	}
-	
-	public void addRobotToTheGameByMouse()
+	/** 
+	 * The function paint the robots by the choose of the user in a GUI window (just in the beginning of the game) 
+	 */
+	private void addRobotToTheGameByMouse()
 	{
 		GameServer gameSer=createObjFromJson.creatGameServer(game.toString());
 		int countRobot=gameSer.getRobots();
 		int numOfVer=g.nodeSize();
 		Object key[]=new Object[numOfVer];
 		int j=0;
-		for(Iterator<node_data> verIter=g.getV().iterator();verIter.hasNext();) 
+		for(Iterator<node_data> verIter=g.getV().iterator();verIter.hasNext();) //create a list of the vertices
 		{
 			int point=verIter.next().getKey();
 			key[j]=point;j++;
 		}
-		for(int i=1;i<=countRobot;i++)
+		for(int i=1;i<=countRobot;i++) //for each robot choose his place in the graph
 		{
 			int v=(Integer)JOptionPane.showInputDialog(null,"choose a vertex to pud robot "+i,"Add robot",JOptionPane.QUESTION_MESSAGE,null,key,null);
 			game.addRobot(v);
@@ -184,14 +207,17 @@ public class MyGameGUI implements Runnable
 			StdDraw.point(g.getNode(v).getLocation().x(),g.getNode(v).getLocation().y());
 		}
 	}
+	/** 
+	 * The function paint the robots by the algorithm in a GUI window (just in the beginning of the game) 
+	 * The algorithm choose for each robot the place of the source fruit with the biggest value
+	 */
 	private void addRobotToTheGameAuto()
 	{
 		GameServer gameSer=createObjFromJson.creatGameServer(game.toString());
 		int countRobot=gameSer.getRobots();//number of robot in the game
 		int countFruit=gameSer.getFruits();//number of fruit in the game
 		int index=0;int v;
-		//put the robot near to the fruit
-		while(countFruit>0&&countRobot>0)
+		while(countFruit>0&&countRobot>0)//put the robot near to the fruit
 		{
 			int typefruit=fruits.get(index).getType();
 			if(typefruit==1)
@@ -210,8 +236,7 @@ public class MyGameGUI implements Runnable
 			int point=verIter.next().getKey();
 			key[j]=point;j++;
 		}
-		//if there is more robot than fruit put them in a random place
-		while(countRobot>0)
+		while(countRobot>0)	//if there is more robot than fruit put them in a random place
 		{
 			int random=(int)(Math.random()*key.length);
 			game.addRobot(key[random]);
@@ -220,8 +245,7 @@ public class MyGameGUI implements Runnable
 	}
 	@Override
 	public void run() 
-	{
-		
+	{	
 		game.startGame();
 		algoForGui a=new algoForGui(game, fruits, robots);
 		while(game.isRunning())

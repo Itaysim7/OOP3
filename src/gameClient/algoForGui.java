@@ -18,7 +18,7 @@ import utils.StdDraw;
 /**
  * This class runs algorithms for moving robots in the graph
  * There are two algorithms : by mouse an by automatic thats moves the robot to the next close node
- * @author boaz.benmoshe
+ * @author itay simhayev and lilach mor
  *
  */
 public class algoForGui 
