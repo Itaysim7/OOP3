@@ -41,6 +41,9 @@ public class MyGameGUI implements Runnable
 	private static int count=0;
 	private List<Fruit> fruits;
 	private List<Pacman> robots;
+	private int destNode=-1;
+	private int destByMouse;
+	private Pacman move;
 
 	public MyGameGUI()
 	{
@@ -328,99 +331,146 @@ public class MyGameGUI implements Runnable
 	@Override
 	public void run() 
 	{
+		
 		game.startGame();
-		int index=0;
 		while(game.isRunning())
 		{
 				synchronized(this) 
 				{
-					moveRobots();
-					if(index%4==0)
-						draw();
-					index++;
+					algoForGui a=new algoForGui(game, fruits, robots, typegame);
+					if(typegame=="Automatic")
+						a.moveRobots();
+					else	
+						moveRobotsbyMouse();
+					draw();
+
 				}
 		}		
 		String results = game.toString();
 		System.out.println("Game Over: "+results);
 	}
 	
-	private  void moveRobots()
+//	private  void moveRobots()
+//	{
+//		List<String> log = game.move();
+//		if(log!=null) {
+//			long t = game.timeToEnd();
+//			for(int i=0;i<log.size();i++)
+//			{
+//				try {
+//					int rid=robots.get(i).getId();
+//					int src=robots.get(i).getSrc();
+//					int dest=robots.get(i).getDest();
+//					if(dest==-1) 
+//					{	
+//						dest = bestNode(src);
+//						game.chooseNextEdge(rid, dest);
+//						System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
+//						System.out.println((new JSONObject(log.get(i))).getJSONObject("Robot"));
+//					}
+//				} 
+//				catch (JSONException e) {e.printStackTrace();}
+//			}
+//		}
+//		ga.resetTagEdge();
+//	}
+//	/**
+//	 * find the fruits that is the closest to the robot in node src
+//	 * @param src
+//	 * @return
+//	 */
+//	private  int bestNode(int src) 
+//	{
+//		double minpath=Double.POSITIVE_INFINITY;
+//		int dest=0;int placeFruit=0;
+//		boolean isGetDest=false;
+//		for(int i=0;i<fruits.size();i++)
+//		{
+//			if(fruits.get(i).edge(g).getTag()==0&&ga.shortestPathDist(src, fruits.get(i).edge(g).getSrc())<minpath)
+//			{
+//					placeFruit=i;
+//				 	isGetDest=true;
+//					minpath=ga.shortestPathDist(src, fruits.get(i).edge(g).getSrc());
+//					if(src==fruits.get(i).edge(g).getSrc()) 
+//					{
+//						dest=fruits.get(i).edge(g).getDest();
+//					}
+//					else
+//						dest=fruits.get(i).edge(g).getSrc();
+//			}
+//		}
+//		if(!isGetDest)
+//		{
+//			System.out.println("is get dest");
+//			if(src==fruits.get(0).edge(g).getSrc()) 
+//			{
+//				dest=fruits.get(0).edge(g).getDest();
+//			}
+//			else
+//				dest=fruits.get(0).edge(g).getSrc();
+//		}
+//		fruits.get(placeFruit).edge(g).setTag(1);
+//		g.getEdge(fruits.get(placeFruit).edge(g).getDest(), fruits.get(placeFruit).edge(g).getSrc()).setTag(1);
+//		List<node_data> node=ga.shortestPath(src, dest);
+//		return node.get(1).getKey();
+//	}
+//
+//	
+	
+	
+	
+
+	////////////by mouse////////
+	private  void moveRobotsbyMouse()
 	{
 		List<String> log = game.move();
-		if(log!=null) {
+		if(log!=null) 
+		{
 			long t = game.timeToEnd();
-			for(int i=0;i<log.size();i++)
+			if(StdDraw.isMousePressed())
 			{
-				try {
-					int rid=robots.get(i).getId();
+				double x=StdDraw.mouseX();double y=StdDraw.mouseY();
+				destNode=findNode(x,y);
+			}
+			if(destNode!=-1)
+			{
+				double minDis=Double.POSITIVE_INFINITY;int index=0;
+				for(int i=0;i<log.size();i++)
+				{
 					int src=robots.get(i).getSrc();
-					int dest=robots.get(i).getDest();
-					if(dest==-1) 
+					if(ga.shortestPathDist(src, destNode)<minDis) 
 					{	
-						dest = bestNode(src);
-						game.chooseNextEdge(rid, dest);
-						System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
-						System.out.println((new JSONObject(log.get(i))).getJSONObject("Robot"));
+						minDis=ga.shortestPathDist(src, destNode);
+						move=robots.get(i);
+						index=i;
 					}
-				} 
-				catch (JSONException e) {e.printStackTrace();}
+				}
+				if(ga.shortestPath(move.getSrc(),destNode).size()==1)
+					destByMouse=destNode;
+				else
+					destByMouse=ga.shortestPath(move.getSrc(),destNode).get(1).getKey();
+				game.chooseNextEdge(move.getId(), destByMouse);
+				try {
+						System.out.println("Turn to node: "+destByMouse+"  time to end:"+(t/1000));
+						System.out.println((new JSONObject(log.get(index))).getJSONObject("Robot"));
+					}
+					catch (JSONException e) {e.printStackTrace();}
 			}
 		}
-		ga.resetTagEdge();
 	}
-	/**
-	 * a very simple random walk implementation!
-	 * @param g
-	 * @param src
-	 * @return
-	 */
-	private  int nextNode(int src) {
-		int ans = -1;
-		Collection<edge_data> ee = g.getE(src);
-		Iterator<edge_data> itr = ee.iterator();
-		int s = ee.size();
-		int r = (int)(Math.random()*s);
-		int i=0;
-		while(i<r) {itr.next();i++;}
-		ans = itr.next().getDest();
-		return ans;
-	}
-	private  int bestNode(int src) 
+	private int findNode(double x,double y) 
 	{
-		double minpath=Double.POSITIVE_INFINITY;
-		int dest=0;int placeFruit=0;
-		boolean isGetDest=false;
-		for(int i=0;i<fruits.size();i++)
+		double minDis=Double.POSITIVE_INFINITY;
+		int src=0;
+		for(Iterator<node_data> verIter=g.getV().iterator();verIter.hasNext();)
 		{
-			if(fruits.get(i).edge(g).getTag()==0&&ga.shortestPathDist(src, fruits.get(i).edge(g).getSrc())<minpath)
+			int nd=verIter.next().getKey();
+			if(Math.abs(x-g.getNode(nd).getLocation().x())+Math.abs(y-g.getNode(nd).getLocation().y())<minDis)
 			{
-					placeFruit=i;
-				 	isGetDest=true;
-					minpath=ga.shortestPathDist(src, fruits.get(i).edge(g).getSrc());
-					if(src==fruits.get(i).edge(g).getSrc()) 
-					{
-						dest=fruits.get(i).edge(g).getDest();
-					}
-					else
-						dest=fruits.get(i).edge(g).getSrc();
+				minDis=Math.abs(x-g.getNode(nd).getLocation().x())+Math.abs(y-g.getNode(nd).getLocation().y());
+				src=nd;
 			}
 		}
-		if(!isGetDest)
-		{
-			System.out.println("is get dest");
-			if(src==fruits.get(0).edge(g).getSrc()) 
-			{
-				dest=fruits.get(0).edge(g).getDest();
-			}
-			else
-				dest=fruits.get(0).edge(g).getSrc();
-		}
-		
-		fruits.get(placeFruit).edge(g).setTag(1);
-		g.getEdge(fruits.get(placeFruit).edge(g).getDest(), fruits.get(placeFruit).edge(g).getSrc()).setTag(1);
-		List<node_data> node=ga.shortestPath(src, dest);
-		return node.get(1).getKey();
+		return src;
 	}
-
-
 }
