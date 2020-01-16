@@ -1,8 +1,8 @@
 package gameClient;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Collection;
+
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -10,9 +10,6 @@ import javax.swing.JOptionPane;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 
 import Server.Game_Server;
 import Server.game_service;
@@ -23,8 +20,7 @@ import dataStructure.node_data;
 import obj.Fruit;
 import obj.GameServer;
 import obj.Pacman;
-import oop_dataStructure.oop_edge_data;
-import oop_dataStructure.oop_graph;
+
 import utils.StdDraw;
 
 public class MyGameGUI implements Runnable
@@ -41,6 +37,7 @@ public class MyGameGUI implements Runnable
 	private static int count=0;
 	private List<Fruit> fruits;
 	private List<Pacman> robots;
+	private createObjFromJson create;
 	private int destNode=-1;
 	private int destByMouse;
 	private Pacman move;
@@ -50,14 +47,15 @@ public class MyGameGUI implements Runnable
 		StdDraw.enableDoubleBuffering();
 		init();
 		paint();
-		fruits=creatFruits();
+		create=new createObjFromJson(game);
+		fruits=create.creatFruits();
 		drawFruits();
 		StdDraw.show();
 		if(typegame.equals("Automatic"))
 			addRobotToTheGameAuto();
 		else
 			addRobotToTheGameByMouse();
-		robots=creatRobotsList();
+		robots=create.creatRobotsList();
 		drawRobot();
 		Thread t=new Thread(this);
 		t.start();
@@ -84,17 +82,13 @@ public class MyGameGUI implements Runnable
 	{
 		StdDraw.clear();
 		paint();
-		fruits=creatFruits();
+		create.update(game);
+		fruits=create.creatFruits();
 		drawFruits();
-		robots=creatRobotsList();
+		robots=create.creatRobotsList();
 		drawRobot();
 		StdDraw.show();
 	}
-	public static void main(String[] a)
-	{
-		MyGameGUI m=new MyGameGUI();
-	}
-	
 	public void porpor() 
 	{	
 		for(Iterator<node_data> verIter=g.getV().iterator();verIter.hasNext();)
@@ -134,35 +128,21 @@ public class MyGameGUI implements Runnable
 					edge_data line=edgeIter.next();
 					int dest=g.getNode(line.getDest()).getKey();
 					int src=point;
-					double weight=TwoNumAfter(line.getWeight());
 					StdDraw.setPenColor(Color.DARK_GRAY);
 					StdDraw.setPenRadius(0.005);
 					StdDraw.line(g.getNode(src).getLocation().x(),g.getNode(src).getLocation().y(), g.getNode(dest).getLocation().x(),g.getNode(dest).getLocation().y());
-//					StdDraw.text(g.getNode(src).getLocation().x()+(g.getNode(dest).getLocation().x()-g.getNode(src).getLocation().x())/4,g.getNode(src).getLocation().y()+(g.getNode(dest).getLocation().y()-g.getNode(src).getLocation().y())/4,(""+weight));
-					//draw yellow point that represent the destination of the edge
-//					StdDraw.setPenColor(Color.YELLOW);
-//					StdDraw.setPenRadius(0.015);
-//					StdDraw.point(g.getNode(dest).getLocation().x()+(g.getNode(src).getLocation().x()-g.getNode(dest).getLocation().x())/10,g.getNode(dest).getLocation().y()+(g.getNode(src).getLocation().y()-g.getNode(dest).getLocation().y())/10);
 				}
 			}
 			catch (Exception e) {}
 		}
 		long time=game.timeToEnd();
-		GameServer result=creatGameServer(game.toString());
+		GameServer result=createObjFromJson.creatGameServer(game.toString());
 		StdDraw.setPenColor(Color.BLACK);
 		StdDraw.setPenRadius(0.020);
 		StdDraw.text(minX+(maxX-minX)*0.85,minY+(maxY-minY)*0.95, "The time is:"+time/1000);
 		StdDraw.text(minX+(maxX-minX)*0.15,minY+(maxY-minY)*0.95, "Level:"+scenario);
 		StdDraw.text(minX+(maxX-minX)*0.50,minY+(maxY-minY)*0.95, "grade:"+result.getGrade());
 	}
-	private double TwoNumAfter(double w) 
-	{
-		double tmp=w*100;
-		int fin=(int) tmp;
-		return (fin/100.0);
-	}
-	
-	
 	public void drawFruits()
 	{
 		for(int i=0;i<fruits.size();i++)
@@ -187,84 +167,13 @@ public class MyGameGUI implements Runnable
 			if(count%2==0)
 				StdDraw.picture(f.getPos().x(), f.getPos().y(),"pacmanopen.png", 0.001, 0.001);
 			else
-				StdDraw.picture(f.getPos().x(), f.getPos().y(),"pacmanclose.png", 0.001, 0.001);
-
-//			StdDraw.point(f.getPos().x(),f.getPos().y());	
-		}
-	}
-	//////create object////
-	
-	private List<Fruit> creatFruits()
-	{
-		List<Fruit> fruitstemp=new ArrayList();
-		Iterator<String> f_iter=game.getFruits().iterator();
-		while(f_iter.hasNext())
-		{
-			String fruit=f_iter.next();
-			fruit=fruit.substring(9,fruit.length()-1);
-			Fruit f=creatFruit(fruit);
-			fruitstemp.add(f);//add to the list of fruit
-		}
-		//sort the array by value
-		for(int i=0;i<fruitstemp.size();i++)
-		{
-			for(int j=fruitstemp.size()-1;j>i;j--)
-			{
-				if(fruitstemp.get(j).getValue()>fruitstemp.get(j-1).getValue())
-				{
-					Fruit temp=fruitstemp.get(j);
-					fruitstemp.set(j, fruitstemp.get(j-1));
-					fruitstemp.set(j-1, temp);
-				}
-			}
-		}
-		return fruitstemp;
-	}
-	private static Fruit creatFruit(String str) 
-	{	
-		Gson gson = new Gson();
-		try
-		{
-			Fruit f=gson.fromJson(str, Fruit.class);
-			return f;
-		} 
-		catch ( JsonSyntaxException  e) //default value for unreadable file
-		{
-			throw new RuntimeException("wrong format for fruit");
-		}
-	}
-	private static  GameServer creatGameServer(String str) 
-	{	
-		str=str.substring(14,str.length()-1);
-		Gson gson = new Gson();
-		try
-		{
-			GameServer game=gson.fromJson(str, GameServer.class);
-			return game;
-		} 
-		catch ( JsonSyntaxException  e) //default value for unreadable file
-		{
-			throw new RuntimeException("wrong format for GameServe");
+				StdDraw.picture(f.getPos().x(), f.getPos().y(),"pacmanclose.png", 0.001, 0.001);	
 		}
 	}
 	
-	private static Pacman creatRobot(String str) 
-	{	
-		str=str.substring(9,str.length()-1);
-		Gson gson = new Gson();
-		try
-		{
-			Pacman rob=gson.fromJson(str, Pacman.class);
-			return rob;
-		} 
-		catch ( JsonSyntaxException  e) //default value for unreadable file
-		{
-			throw new RuntimeException("wrong format for Robot");
-		}
-	}
 	public void addRobotToTheGameByMouse()
 	{
-		GameServer gameSer=creatGameServer(game.toString());
+		GameServer gameSer=createObjFromJson.creatGameServer(game.toString());
 		int countRobot=gameSer.getRobots();
 		int numOfVer=g.nodeSize();
 		Object key[]=new Object[numOfVer];
@@ -285,7 +194,7 @@ public class MyGameGUI implements Runnable
 	}
 	private void addRobotToTheGameAuto()
 	{
-		GameServer gameSer=creatGameServer(game.toString());
+		GameServer gameSer=createObjFromJson.creatGameServer(game.toString());
 		int countRobot=gameSer.getRobots();//number of robot in the game
 		int countFruit=gameSer.getFruits();//number of fruit in the game
 		int index=0;int v;
@@ -316,17 +225,6 @@ public class MyGameGUI implements Runnable
 			game.addRobot(key[random]);
 			countRobot--;
 		}
-	}
-	private List<Pacman> creatRobotsList()
-	{
-		List<String> rob=game.getRobots();
-		List<Pacman>robotemp=new ArrayList();
-		for(int i=0;i<rob.size();i++)
-		{
-			Pacman itay = creatRobot(rob.get(i));
-			robotemp.add(itay);
-		}
-		return robotemp;
 	}
 	@Override
 	public void run() 
