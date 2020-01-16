@@ -1,6 +1,7 @@
 package gameClient;
 
 import java.util.Iterator;
+
 import java.util.List;
 
 import org.json.JSONException;
@@ -14,6 +15,12 @@ import obj.Fruit;
 import obj.Pacman;
 import utils.StdDraw;
 
+/**
+ * This class runs algorithms for moving robots in the graph
+ * There are two algorithms : by mouse an by automatic thats moves the robot to the next close node
+ * @author boaz.benmoshe
+ *
+ */
 public class algoForGui 
 {
 	private game_service game;
@@ -21,12 +28,11 @@ public class algoForGui
 	private Graph_Algo ga;
 	private List<Fruit> fruits;
 	private List<Pacman> robots;
-	private String typegame;
 	private int destNode=-1;
 	private int destByMouse;
 	private Pacman move;
 
-	public algoForGui(game_service game1,List<Fruit> f,List<Pacman> p,String t) 
+	public algoForGui(game_service game1,List<Fruit> f,List<Pacman> p) 
 	{
 		this.game=game1;
 		fruits=f;
@@ -35,19 +41,34 @@ public class algoForGui
 		g.init(game.getGraph());
 		ga=new Graph_Algo();
 		ga.init(g);
-		typegame=t;
+	}
+	/**
+	 * Update the game, fruit and pacman
+	 * @param game1 - the update game
+	 * @param f - the update list of fruits
+	 * @param p - the update list of Pacman
+	 */
+	public  void update(game_service game1,List<Fruit> f,List<Pacman> p)
+	{
+		this.game=game1;
+		fruits=f;
+		robots=p;
 	}
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
 	}
-	public  void moveRobots()
+	/**
+	 * The function move the robots by algorithms
+	 * each robot to the closest fruit
+	 */
+	public void moveRobots()
 	{
 		List<String> log = game.move();
 		if(log!=null) {
 			long t = game.timeToEnd();
-			for(int i=0;i<log.size();i++)
+			for(int i=0;i<log.size();i++) //for each robots find his next destination 
 			{
 				try {
 					int rid=robots.get(i).getId();
@@ -55,7 +76,7 @@ public class algoForGui
 					int dest=robots.get(i).getDest();
 					if(dest==-1) 
 					{	
-						dest = bestNode(src);
+						dest = bestNode(src); //find the closet fruit
 						game.chooseNextEdge(rid, dest);
 						System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
 						System.out.println((new JSONObject(log.get(i))).getJSONObject("Robot"));
@@ -69,17 +90,17 @@ public class algoForGui
 	/**
 	 * find the fruits that is the closest to the robot in node src
 	 * @param src
-	 * @return
+	 * @return the id of the next node
 	 */
 	private  int bestNode(int src) 
 	{
 		double minpath=Double.POSITIVE_INFINITY;
 		int dest=0;int placeFruit=0;
 		boolean isGetDest=false;
-		for(int i=0;i<fruits.size();i++)
+		for(int i=0;i<fruits.size();i++) //find the fruit that is closest to the src
 		{
 			if(fruits.get(i).edge(g).getTag()==0&&ga.shortestPathDist(src, fruits.get(i).edge(g).getSrc())<minpath)
-			{
+			{ //check if there isn't robot that moves already to that fruit and if its the closest fruit until now
 					placeFruit=i;
 				 	isGetDest=true;
 					minpath=ga.shortestPathDist(src, fruits.get(i).edge(g).getSrc());
@@ -91,9 +112,8 @@ public class algoForGui
 						dest=fruits.get(i).edge(g).getSrc();
 			}
 		}
-		if(!isGetDest)
+		if(!isGetDest) //if there isnt a fruit available for this robots
 		{
-			System.out.println("is get dest");
 			if(src==fruits.get(0).edge(g).getSrc()) 
 			{
 				dest=fruits.get(0).edge(g).getDest();
@@ -108,21 +128,26 @@ public class algoForGui
 	}
 	
 	////////////by mouse////////
-	public void moveRobotsbyMouse(game_service game1)
+	
+	/**
+	 * The function move the robots by mouse 
+	 * moves the closest robots to the node that pressed until the robots arrives to the node
+	 */
+	public  void moveRobotsbyMouse()
 	{
-		List<String> log = game1.move();
+		List<String> log = game.move();
 		if(log!=null) 
 		{
-			long t = game1.timeToEnd();
-			if(StdDraw.isMousePressed())
+			long t = game.timeToEnd();
+			if(StdDraw.isMousePressed())//check if there is new pressed
 			{
 				double x=StdDraw.mouseX();double y=StdDraw.mouseY();
 				destNode=findNode(x,y);
 			}
-			if(destNode!=-1)
+			if(destNode!=-1)//if the mouse pressed at least one time
 			{
 				double minDis=Double.POSITIVE_INFINITY;int index=0;
-				for(int i=0;i<log.size();i++)
+				for(int i=0;i<log.size();i++) //find the closest robots to the press
 				{
 					int src=robots.get(i).getSrc();
 					if(ga.shortestPathDist(src, destNode)<minDis) 
@@ -136,19 +161,21 @@ public class algoForGui
 					destByMouse=destNode;
 				else
 					destByMouse=ga.shortestPath(move.getSrc(),destNode).get(1).getKey();
-				game1.chooseNextEdge(move.getId(), destByMouse);
-				System.out.println("src:"+move.getSrc());
-				System.out.println("dest:"+destByMouse);
-
-
-//				try {
-//						System.out.println("Turn to node: "+destByMouse+"  time to end:"+(t/1000));
-//						System.out.println((new JSONObject(log.get(index))).getJSONObject("Robot"));
-//					}
-//					catch (JSONException e) {e.printStackTrace();}
+				game.chooseNextEdge(move.getId(), destByMouse);
+				try {
+						System.out.println("Turn to node: "+destByMouse+"  time to end:"+(t/1000));
+						System.out.println((new JSONObject(log.get(index))).getJSONObject("Robot"));
+					}
+					catch (JSONException e) {e.printStackTrace();}
 			}
 		}
 	}
+	/**
+	 * The function find the node that is closest to the press 
+	 * @param x- the coordinate of X that Pressed
+	 * @param y- the coordinate of Y that Pressed
+	 * @return the id of the node
+	 */
 	private int findNode(double x,double y) 
 	{
 		double minDis=Double.POSITIVE_INFINITY;
