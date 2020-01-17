@@ -1671,7 +1671,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		else if(e.equals(" Save as kml ")) {
 			KML_Logger kmll= new KML_Logger();
 			kmll.setGameNumber(StdDraw.gameNumber);
-			kmll.creatTheGameKml();
+			kmll.initTheGame();
 		}
 	}
 
