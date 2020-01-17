@@ -33,14 +33,6 @@ public class KML_Logger implements Runnable{
 	private String start="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + 
 			"<kml xmlns=\"http://earth.google.com/kml/2.2\">\r\n" + 
 			"  <Document>\r\n" ;
-	private String icon="<Style id=\"paddle-a\">\r\n" + 
-			"      <IconStyle>\r\n" + 
-			"        <Icon>\r\n" + 
-			"          <href>http://maps.google.com/mapfiles/kml/paddle/A.png</href>\r\n" + 
-			"        </Icon>\r\n" + 
-			"        <hotSpot x=\"32\" y=\"1\" xunits=\"pixels\" yunits=\"pixels\"/>\r\n" + 
-			"      </IconStyle>\r\n" + 
-			"    </Style>";
 	private String end="</Document>\r\n" + 
 			"</kml>";
 
@@ -112,7 +104,6 @@ public class KML_Logger implements Runnable{
 	}
 
 	/** 
-	 * The function paint the robots by the algorithm in a GUI window (just in the beginning of the game) 
 	 * The algorithm choose for each robot the place of the source fruit with the biggest value
 	 */
 	private void addRobotToTheGameAuto()
@@ -195,7 +186,7 @@ public class KML_Logger implements Runnable{
 		}
 		synchronized(this) 
 		{
-			String kml=start+icon+theGraph+theFruits+theRobots+end;
+			String kml=start+theGraph+theFruits+theRobots+end;
 			try {
 				save(kml);
 			} catch (IOException e) {
@@ -205,7 +196,7 @@ public class KML_Logger implements Runnable{
 	}
 
 	/**
-	 * make kml for the fruit by the time
+	 * make kml for the robot by the time
 	 */
 	public String robotConverseToKml(Pacman p,long timeToEnd) {
 		long time=(this.timeOfGame-timeToEnd)/1000;
