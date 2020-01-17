@@ -68,6 +68,7 @@ public class MyGameGUI implements Runnable
 			level[i]=i;
 		scenario=(Integer)JOptionPane.showInputDialog(null,"Choose a level between 0-23","Level", JOptionPane.QUESTION_MESSAGE,null,level,null);
 		game = Game_Server.getServer(scenario);
+		StdDraw.setGameNumber(scenario);
 		//////choose game type////
 		Object type[]=new Object[2];type[0]="by mouse";type[1]="Automatic";
 		typegame=(String)JOptionPane.showInputDialog(null,"Choose type of game","type of game", JOptionPane.QUESTION_MESSAGE,null,type,null);

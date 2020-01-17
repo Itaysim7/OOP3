@@ -8,6 +8,14 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="lib/java-json.jar"/>
 	<classpathentry kind="lib" path="lib/GameServer_v0.27.jar"/>
-	<classpathentry kind="lib" path="C:/Users/user/eclipse-workspace/OOP3.1.1/lib/gson-2.8.6.jar"/>
+	<classpathentry kind="lib" path="C:/Users/lilac/Downloads/opi/lib/gson-2.8.6.jar"/>
+	<classpathentry kind="lib" path="C:/Users/lilac/Downloads/opi/lib/activation-1.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/lilac/Downloads/opi/lib/GameServer_v0.27.jar"/>
+	<classpathentry kind="lib" path="C:/Users/lilac/Downloads/opi/lib/JavaAPIforKml-2.2.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/lilac/Downloads/opi/lib/java-json.jar"/>
+	<classpathentry kind="lib" path="C:/Users/lilac/Downloads/opi/lib/jaxb-api-2.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/lilac/Downloads/opi/lib/jaxb-impl-2.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/lilac/Downloads/opi/lib/jaxb-xjc-2.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/lilac/Downloads/opi/lib/stax-api-1.0-2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
