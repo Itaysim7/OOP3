@@ -10,3 +10,5 @@ the gameCleint packege responsible for the game.
 the MyGameGUI class responsible for the drawing. it uses the algoForGui class the create the best movement for the robot.
 the createObjFromJson class create object for the json that the game returns.
 the KML_Logger class create kml file for every game so we can put it in google earth and see an amination of ower game.
+
+there are 24 level (0 to 23) that represnt on 5 type of maps, every level as a diffrent number of fruits and robots.
