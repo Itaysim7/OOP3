@@ -178,7 +178,7 @@ public class Graph_Algo implements graph_algorithms
 		}
 		this.resetTag();
 		double weight=g.getNode(dest).getWeight();
-		this.resetWeight();
+		//this.resetWeight();
 		return weight;
 	}
 	/**

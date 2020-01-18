@@ -28,6 +28,7 @@ package utils;
  ******************************************************************************/
 
 import java.awt.BasicStroke;
+
 import java.awt.Color;
 import java.awt.FileDialog;
 import java.awt.Font;
@@ -1654,7 +1655,7 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 	}
 
 	private static int gameNumber;
-	public static void setGameNumber(int n) {gameNumber=n;System.out.println("save");}
+	public static void setGameNumber(int n) {gameNumber=n;}
 	/**
 	 * This method cannot be called directly.
 	 */
