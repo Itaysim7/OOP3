@@ -84,14 +84,11 @@ public class Fruit
 			catch(NullPointerException e)
 			{}
 		}
-		if(efinal.getSrc()-efinal.getDest()>0&&type==1)//if id of src is bigger than id of dest and the type of fruit is apple
-			return efinal;
-		if(efinal.getSrc()-efinal.getDest()<0&&type!=1)//if id of dest is bigger than id of stc and the type of fruit is banana
+		if(efinal.getSrc()-efinal.getDest()<0)//if id of src is bigger than id of dest and the type of fruit is apple
 			return efinal;
 		efinal=g.getEdge(efinal.getDest(), efinal.getSrc());		
 		return efinal;
 	}
-
 
 
 }

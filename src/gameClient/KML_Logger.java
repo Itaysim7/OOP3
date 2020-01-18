@@ -2,15 +2,14 @@ package gameClient;
 
 
 import java.io.FileWriter;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
 
 import Server.Game_Server;
-import Server.fruits;
 import Server.game_service;
-import algorithms.Graph_Algo;
 import dataStructure.DGraph;
 import dataStructure.edge_data;
 import dataStructure.node_data;

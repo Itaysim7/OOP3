@@ -6,14 +6,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import dataStructure.DGraph;
 import dataStructure.edge_data;
 import dataStructure.graph;
-import dataStructure.nodeData;
 import dataStructure.node_data;
 /**
  * This  class represents the set of graph-theory algorithms
@@ -180,7 +177,9 @@ public class Graph_Algo implements graph_algorithms
 			{}
 		}
 		this.resetTag();
-		return g.getNode(dest).getWeight();
+		double weight=g.getNode(dest).getWeight();
+		this.resetWeight();
+		return weight;
 	}
 	/**
 	 * returns the the shortest path between src to dest - as an ordered List of nodes:

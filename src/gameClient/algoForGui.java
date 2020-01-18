@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import Server.game_service;
 import algorithms.Graph_Algo;
 import dataStructure.DGraph;
+import dataStructure.edge_data;
 import dataStructure.node_data;
 import obj.Fruit;
 import obj.Pacman;
@@ -55,10 +56,6 @@ public class algoForGui
 		robots=p;
 	}
 
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
 	/**
 	 * The function move the robots by algorithms
 	 * each robot to the closest fruit
@@ -86,6 +83,8 @@ public class algoForGui
 			}
 		}
 		ga.resetTagEdge();
+		fruits.removeAll(fruits);
+		
 	}
 	/**
 	 * find the fruits that is the closest to the robot in node src
@@ -95,35 +94,56 @@ public class algoForGui
 	private  int bestNode(int src) 
 	{
 		double minpath=Double.POSITIVE_INFINITY;
-		int dest=0;int placeFruit=0;
+		edge_data e=null;
+		edge_data efinal=null;
+		int dest=0;int index=0;
 		boolean isGetDest=false;
 		for(int i=0;i<fruits.size();i++) //find the fruit that is closest to the src
 		{
-			if(fruits.get(i).edge(g).getTag()==0&&ga.shortestPathDist(src, fruits.get(i).edge(g).getSrc())<minpath)
+			double dist;
+		 	e=fruits.get(i).edge(g);
+		 	if(fruits.get(i).getType()==1)
+		 		dist=ga.shortestPathDist(src, e.getSrc());
+		 	else
+		 		dist=ga.shortestPathDist(src, e.getDest());
+			if(e.getTag()==0&&dist<minpath)
 			{ //check if there isn't robot that moves already to that fruit and if its the closest fruit until now
-					placeFruit=i;
 				 	isGetDest=true;
-					minpath=ga.shortestPathDist(src, fruits.get(i).edge(g).getSrc());
-					if(src==fruits.get(i).edge(g).getSrc()) 
+					minpath=dist;
+					index=i;
+					efinal=e;
+					if(fruits.get(i).getType()==-1) 
 					{
-						dest=fruits.get(i).edge(g).getDest();
+						dest=e.getDest();
 					}
 					else
-						dest=fruits.get(i).edge(g).getSrc();
+						dest=e.getSrc();
 			}
 		}
 		if(!isGetDest) //if there isnt a fruit available for this robots
 		{
-			if(src==fruits.get(0).edge(g).getSrc()) 
+			e=fruits.get(0).edge(g);
+			if(src==e.getSrc()) 
 			{
-				dest=fruits.get(0).edge(g).getDest();
+				dest=e.getDest();
 			}
 			else
-				dest=fruits.get(0).edge(g).getSrc();
+				dest=e.getSrc();
+			efinal=e;
 		}
-		fruits.get(placeFruit).edge(g).setTag(1);
-		g.getEdge(fruits.get(placeFruit).edge(g).getDest(), fruits.get(placeFruit).edge(g).getSrc()).setTag(1);
+		efinal.setTag(1);
 		List<node_data> node=ga.shortestPath(src, dest);
+		if(node.size()==1&&fruits.get(index).getType()==1)
+		{
+			fruits.remove(index);
+			return efinal.getDest();
+		}
+		if(node.size()==1&&fruits.get(index).getType()==-1)
+		{
+			fruits.remove(index);
+			return efinal.getSrc();
+		}
+		fruits.remove(index);
 		return node.get(1).getKey();
 	}
 	
