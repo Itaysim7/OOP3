@@ -20,4 +20,8 @@ To save kml file you neer to run KML_Logger class and than the files will save o
  
 Table of maximum grade for each level by the auto drive :
 
+![bestscore](https://user-images.githubusercontent.com/57639675/72671216-a7c8bf00-3a4f-11ea-858c-442a8b85b82c.png)
 
+Example for the GUI window :
+
+![23](https://user-images.githubusercontent.com/46937549/72663574-d23d5c80-39fc-11ea-9541-07dcb71c7b35.jpg)
