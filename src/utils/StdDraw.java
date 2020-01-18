@@ -1654,22 +1654,24 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 	}
 
 	private static int gameNumber;
-	public static void setGameNumber(int n) {gameNumber=n;}
+	public static void setGameNumber(int n) {gameNumber=n;System.out.println("save");}
 	/**
 	 * This method cannot be called directly.
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(e.equals("")) {
-		FileDialog chooser = new FileDialog(StdDraw.frame, "Use a .png or .jpg extension", FileDialog.SAVE);
-		chooser.setVisible(true);
-		String filename = chooser.getFile();
-		if (filename != null) {
-			StdDraw.save(chooser.getDirectory() + File.separator + chooser.getFile());
+		System.out.println(e.getActionCommand());
+		if(e.getActionCommand().equals(" Save...   ")) {
+			FileDialog chooser = new FileDialog(StdDraw.frame, "Use a .png or .jpg extension", FileDialog.SAVE);
+			chooser.setVisible(true);
+			String filename = chooser.getFile();
+			if (filename != null) {
+				StdDraw.save(chooser.getDirectory() + File.separator + chooser.getFile());
+			}
 		}
-		}
-		else if(e.equals(" Save as kml ")) {
+		else if(e.getActionCommand().equals(" Save as kml ")) {
 			KML_Logger kmll= new KML_Logger();
+			System.out.println(StdDraw.gameNumber);
 			kmll.setGameNumber(StdDraw.gameNumber);
 			kmll.initTheGame();
 		}
