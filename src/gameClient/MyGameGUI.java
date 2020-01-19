@@ -6,9 +6,7 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import Server.Game_Server;
 import Server.game_service;
-import algorithms.Graph_Algo;
 import dataStructure.DGraph;
 import dataStructure.edge_data;
 import dataStructure.node_data;
@@ -26,7 +24,6 @@ public class MyGameGUI implements Runnable
 {
 	private game_service game;
 	private DGraph g;
-	private Graph_Algo ga;
 	private double maxX=Double.NEGATIVE_INFINITY;
 	private double maxY=Double.NEGATIVE_INFINITY;
 	private double minX=Double.POSITIVE_INFINITY;
@@ -38,10 +35,11 @@ public class MyGameGUI implements Runnable
 	private List<Pacman> robots;
 	private createObjFromJson create;
 
-	public MyGameGUI()
+	public MyGameGUI(game_service game1,int scenario1,String typegame1,DGraph g1)
 	{
 		StdDraw.enableDoubleBuffering();
-		init();
+		game=game1;scenario=scenario1;typegame=typegame1;g=g1;
+		porpor();
 		paint();
 		create=new createObjFromJson(game);
 		fruits=create.creatFruits(); //create a list of fruits
@@ -55,28 +53,6 @@ public class MyGameGUI implements Runnable
 		drawRobot();
 		Thread t=new Thread(this);
 		t.start();
-	}
-	/** 
-	 * The function gets from the user the level and type of game that he choose 
-	 * init the graph and the Proportions of the gui
-	 */
-	private void init()
-	{
-		//////choose level////
-		Object level[]=new Object[24];
-		for(int i=0;i<level.length;i++)
-			level[i]=i;
-		scenario=(Integer)JOptionPane.showInputDialog(null,"Choose a level between 0-23","Level", JOptionPane.QUESTION_MESSAGE,null,level,null);
-		game = Game_Server.getServer(scenario);
-		//////choose game type////
-		Object type[]=new Object[2];type[0]="by mouse";type[1]="Automatic";
-		typegame=(String)JOptionPane.showInputDialog(null,"Choose type of game","type of game", JOptionPane.QUESTION_MESSAGE,null,type,null);
-		//////create graph and algo graph////
-		g=new DGraph();
-		g.init(game.getGraph());
-		ga=new Graph_Algo();
-		ga.init(g);
-		porpor();
 	}
 	/** 
 	 * The function update the GUI by the data of the current game
@@ -246,26 +222,34 @@ public class MyGameGUI implements Runnable
 	public void run() 
 	{	
 		game.startGame();
-		algoForGui a=new algoForGui(game, fruits, robots);
+		AutoDrive a=new AutoDrive(game, fruits, robots);
+		ManualDrive m=new ManualDrive(game, fruits, robots);
+
 		while(game.isRunning())
 		{
-			a.update(game, fruits, robots);
+				a.update(game, fruits, robots);
 				synchronized(this) 
 				{
 					if(typegame=="Automatic")
+					{
+						a.update(game, fruits, robots);
 						a.moveRobots();
+					}
 					else	
-						a.moveRobotsbyMouse();
+					{
+						m.update(game, fruits, robots);
+						m.moveRobotsbyMouse();
+					}
 					draw();
 				}
-				try
-				{
-					Thread.sleep(100);
-				}
-				catch(InterruptedException e)
-				{
-					e.printStackTrace();
-				}
+//				try
+//				{
+//					Thread.sleep(100);
+//				}
+//				catch(InterruptedException e)
+//				{
+//					e.printStackTrace();
+//				}
 		}		
 		String results = game.toString();
 		System.out.println("Game Over: "+results);

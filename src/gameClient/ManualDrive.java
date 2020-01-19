@@ -10,7 +10,6 @@ import org.json.JSONObject;
 import Server.game_service;
 import algorithms.Graph_Algo;
 import dataStructure.DGraph;
-import dataStructure.edge_data;
 import dataStructure.node_data;
 import obj.Fruit;
 import obj.Pacman;
@@ -22,7 +21,7 @@ import utils.StdDraw;
  * @author itay simhayev and lilach mor
  *
  */
-public class algoForGui 
+public class ManualDrive 
 {
 	private game_service game;
 	private DGraph g;
@@ -33,7 +32,7 @@ public class algoForGui
 	private int destByMouse;
 	private Pacman move;
 
-	public algoForGui(game_service game1,List<Fruit> f,List<Pacman> p) 
+	public ManualDrive(game_service game1,List<Fruit> f,List<Pacman> p) 
 	{
 		this.game=game1;
 		fruits=f;
@@ -55,99 +54,6 @@ public class algoForGui
 		fruits=f;
 		robots=p;
 	}
-
-	/**
-	 * The function move the robots by algorithms
-	 * each robot to the closest fruit
-	 */
-	public void moveRobots()
-	{
-		List<String> log = game.move();
-		if(log!=null) {
-			long t = game.timeToEnd();
-			for(int i=0;i<log.size();i++) //for each robots find his next destination 
-			{
-				try {
-					int rid=robots.get(i).getId();
-					int src=robots.get(i).getSrc();
-					int dest=robots.get(i).getDest();
-					if(dest==-1) 
-					{	
-						dest = bestNode(src); //find the closet fruit
-						game.chooseNextEdge(rid, dest);
-						System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
-						System.out.println((new JSONObject(log.get(i))).getJSONObject("Robot"));
-					}
-				} 
-				catch (JSONException e) {e.printStackTrace();}
-			}
-		}
-		ga.resetTagEdge();
-		fruits.removeAll(fruits);
-		
-	}
-	/**
-	 * find the fruits that is the closest to the robot in node src
-	 * @param src
-	 * @return the id of the next node
-	 */
-	private  int bestNode(int src) 
-	{
-		double minpath=Double.POSITIVE_INFINITY;
-		edge_data e=null;
-		edge_data efinal=null;
-		int dest=0;int index=0;
-		boolean isGetDest=false;
-		for(int i=0;i<fruits.size();i++) //find the fruit that is closest to the src
-		{
-			double dist;
-		 	e=fruits.get(i).edge(g);
-		 	if(fruits.get(i).getType()==1)
-		 		dist=ga.shortestPathDist(src, e.getSrc());
-		 	else
-		 		dist=ga.shortestPathDist(src, e.getDest());
-			if(e.getTag()==0&&dist<minpath)
-			{ //check if there isn't robot that moves already to that fruit and if its the closest fruit until now
-				 	isGetDest=true;
-					minpath=dist;
-					index=i;
-					efinal=e;
-					if(fruits.get(i).getType()==-1) 
-					{
-						dest=e.getDest();
-					}
-					else
-						dest=e.getSrc();
-			}
-		}
-		if(!isGetDest) //if there isnt a fruit available for this robots
-		{
-			e=fruits.get(0).edge(g);
-			if(src==e.getSrc()) 
-			{
-				dest=e.getDest();
-			}
-			else
-				dest=e.getSrc();
-			efinal=e;
-		}
-		efinal.setTag(1);
-		List<node_data> node=ga.shortestPath(src, dest);
-		if(node.size()==1&&fruits.get(index).getType()==1)
-		{
-			fruits.remove(index);
-			return efinal.getDest();
-		}
-		if(node.size()==1&&fruits.get(index).getType()==-1)
-		{
-			fruits.remove(index);
-			return efinal.getSrc();
-		}
-		fruits.remove(index);
-		return node.get(1).getKey();
-	}
-	
-	////////////by mouse////////
 	
 	/**
 	 * The function move the robots by mouse 
@@ -211,6 +117,5 @@ public class algoForGui
 		}
 		return src;
 	}
-
 
 }

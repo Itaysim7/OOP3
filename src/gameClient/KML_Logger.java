@@ -159,7 +159,7 @@ public class KML_Logger implements Runnable{
 	@Override
 	public void run() {
 		game.startGame();
-		algoForGui a=new algoForGui(game, fruits, robots);
+		AutoDrive a=new AutoDrive(game, fruits, robots);
 
 		while(game.isRunning())
 		{
