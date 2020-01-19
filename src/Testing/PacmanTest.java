@@ -2,7 +2,6 @@ package Testing;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
 import java.util.List;
 
 import org.junit.jupiter.api.AfterAll;
@@ -15,6 +14,7 @@ import Server.Game_Server;
 import Server.game_service;
 import dataStructure.DGraph;
 import gameClient.createObjFromJson;
+import obj.Fruit;
 import obj.Pacman;
 import utils.Point3D;
 
