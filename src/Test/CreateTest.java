@@ -1,4 +1,4 @@
-package Testing;
+package Test;
 
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;

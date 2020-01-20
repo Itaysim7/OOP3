@@ -76,7 +76,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
-import gameClient.KML_Logger;
 
 /**
  *  The {@code StdDraw} class provides a basic capability for
@@ -725,9 +724,6 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		menuItem1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
 				Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 		menu.add(menuItem1);
-		JMenuItem menuItem2 = new JMenuItem(" Save as kml ");
-		menuItem2.addActionListener(std);
-		menu.add(menuItem2);
 		return menuBar;
 	}
 
@@ -1654,28 +1650,17 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 		}
 	}
 
-	private static int gameNumber;
-	public static void setGameNumber(int n) {gameNumber=n;}
 	/**
 	 * This method cannot be called directly.
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		System.out.println(e.getActionCommand());
-		if(e.getActionCommand().equals(" Save...   ")) {
 			FileDialog chooser = new FileDialog(StdDraw.frame, "Use a .png or .jpg extension", FileDialog.SAVE);
 			chooser.setVisible(true);
 			String filename = chooser.getFile();
 			if (filename != null) {
 				StdDraw.save(chooser.getDirectory() + File.separator + chooser.getFile());
 			}
-		}
-		else if(e.getActionCommand().equals(" Save as kml ")) {
-			KML_Logger kmll= new KML_Logger();
-			System.out.println(StdDraw.gameNumber);
-			kmll.setGameNumber(StdDraw.gameNumber);
-			kmll.initTheGame();
-		}
 	}
 
 

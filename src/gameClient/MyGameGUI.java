@@ -34,11 +34,20 @@ public class MyGameGUI implements Runnable
 	private List<Fruit> fruits;
 	private List<Pacman> robots;
 	private createObjFromJson create;
+	private String saveAsKml;
+	private KML_Logger kml;
+	private boolean firstRun =true;
+	private long timeOfGame;
 
-	public MyGameGUI(game_service game1,int scenario1,String typegame1,DGraph g1)
+	public MyGameGUI(game_service game1,int scenario1,String typegame1,DGraph g1,String iskml)
 	{
 		StdDraw.enableDoubleBuffering();
-		game=game1;scenario=scenario1;typegame=typegame1;g=g1;
+		game=game1;scenario=scenario1;typegame=typegame1;g=g1;saveAsKml=iskml;
+		if(saveAsKml.equals("yes")) {
+			kml = new KML_Logger();
+			kml.setGraph(g);
+			kml.setGameNumber(scenario);
+		}
 		porpor();
 		paint();
 		create=new createObjFromJson(game);
@@ -92,7 +101,7 @@ public class MyGameGUI implements Runnable
 		StdDraw.setXscale(minX,maxX);
 		StdDraw.setYscale(minY,maxY);
 	}
-////////draw/////////////
+	////////draw/////////////
 	/** 
 	 * The function paint the graph of the game in GUI window
 	 */
@@ -105,7 +114,7 @@ public class MyGameGUI implements Runnable
 			StdDraw.setPenRadius(0.020);
 			StdDraw.point(g.getNode(point).getLocation().x(),g.getNode(point).getLocation().y());
 			StdDraw.text(g.getNode(point).getLocation().x(),g.getNode(point).getLocation().y()+0.00025, (""+point));
-			
+
 			try {//in case point does not have edge the function getE return exception, and we do not want exception we just do not want it to paint
 				for(Iterator<edge_data> edgeIter=g.getE(point).iterator();edgeIter.hasNext();) 
 				{ //paint all the edges in the graph
@@ -134,7 +143,7 @@ public class MyGameGUI implements Runnable
 	{
 		for(int i=0;i<fruits.size();i++)
 		{
-			
+
 			Fruit f=fruits.get(i);
 			if(f.getType()==1)
 				StdDraw.picture(f.getPos().x(), f.getPos().y(),"apple.png", 0.0005, 0.0005);
@@ -227,29 +236,51 @@ public class MyGameGUI implements Runnable
 
 		while(game.isRunning())
 		{
-				a.update(game, fruits, robots);
-				synchronized(this) 
-				{
-					if(typegame=="Automatic")
-					{
-						a.update(game, fruits, robots);
-						a.moveRobots();
+			a.update(game, fruits, robots);
+			synchronized(this) 
+			{
+				if(this.saveAsKml.equals("yes")) {
+					if(this.firstRun) {
+						if(game.timeToEnd()>30000) 
+							this.timeOfGame=60000;
+						else
+							this.timeOfGame=30000;
+						this.firstRun=false;
 					}
-					else	
-					{
-						m.update(game, fruits, robots);
-						m.moveRobotsbyMouse();
-					}
-					draw();
 				}
-//				try
-//				{
-//					Thread.sleep(100);
-//				}
-//				catch(InterruptedException e)
-//				{
-//					e.printStackTrace();
-//				}
+				if(typegame=="Automatic")
+				{
+					a.update(game, fruits, robots);
+					a.moveRobots();
+				}
+				else	
+				{
+					m.update(game, fruits, robots);
+					m.moveRobotsbyMouse();
+				}
+				draw();
+				if(this.saveAsKml.equals("yes")) {
+					create.update(game);
+					fruits=create.creatFruits();
+					robots=create.creatRobotsList();
+					for(int i=0;i<robots.size();i++) 
+						kml.addToTheRobots(kml.robotConverseToKml(robots.get(i),(timeOfGame-game.timeToEnd())/1000));
+					for(int i=0;i<fruits.size();i++) 
+						kml.addToTheFruits(kml.fruitConverseToKml(fruits.get(i),(timeOfGame-game.timeToEnd())/1000));
+				}
+
+			}
+
+			//				try
+			//				{
+			//					Thread.sleep(100);
+			//				}
+			//				catch(InterruptedException e)
+			//				{
+			//					e.printStackTrace();
+			//				}
+			if(this.saveAsKml.equals("yes")) 
+				kml.saveKmlFromGUI();
 		}		
 		String results = game.toString();
 		System.out.println("Game Over: "+results);

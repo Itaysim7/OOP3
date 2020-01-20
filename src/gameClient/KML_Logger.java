@@ -152,6 +152,22 @@ public class KML_Logger implements Runnable{
 		Thread t=new Thread(this);
 		t.start();
 	}
+	
+	public void setGraph(DGraph g) {
+		this.g=g;
+		theGraph();
+	}
+	
+	
+	public void saveKmlFromGUI() {
+		String kml=start+theGraph+theFruits+theRobots+end;
+		try {
+			save(kml);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * while the game is running update the place of the robot and fruit and send to the ConverseToKml function to make the kml for every chang
 	 * when the game end send to the save function to save the kml file with all we write.
@@ -178,9 +194,9 @@ public class KML_Logger implements Runnable{
 				fruits=create.creatFruits();
 				robots=create.creatRobotsList();
 				for(int i=0;i<robots.size();i++) 
-					theRobots+=robotConverseToKml(robots.get(i),game.timeToEnd());
+					theRobots+=robotConverseToKml(robots.get(i),timeOfGame-game.timeToEnd());
 				for(int i=0;i<fruits.size();i++) 
-					theFruits+=fruitConverseToKml(fruits.get(i),game.timeToEnd());
+					theFruits+=fruitConverseToKml(fruits.get(i),timeOfGame-game.timeToEnd());
 			}
 		}
 		synchronized(this) 
@@ -193,12 +209,17 @@ public class KML_Logger implements Runnable{
 			}
 		}
 	}
+	public void addToTheRobots(String str) {
+		theRobots+=str;
+	}
+	public void addToTheFruits(String str) {
+		theFruits+=str;
+	}
 
 	/**
 	 * make kml for the robot by the time
 	 */
-	public String robotConverseToKml(Pacman p,long timeToEnd) {
-		long time=(this.timeOfGame-timeToEnd)/1000;
+	public String robotConverseToKml(Pacman p,long time) {
 
 		String result="<Placemark>\r\n" + 
 				"      <TimeSpan>\r\n" +
@@ -223,11 +244,7 @@ public class KML_Logger implements Runnable{
 	/**
 	 * make kml for the fruit by the time
 	 */
-	public String fruitConverseToKml(Fruit f,long timeToEnd) {
-		long time=(this.timeOfGame-timeToEnd)/1000;
-		//		System.out.println(this.timeOfGame);
-		//		System.out.println(timeToEnd);
-		//		System.out.println(time);
+	public String fruitConverseToKml(Fruit f,long time) {
 		String result;
 		if(f.getType()==1) {
 			result="<Placemark>\r\n" + 
@@ -280,9 +297,9 @@ public class KML_Logger implements Runnable{
 			kmll.setGameNumber(i);
 			kmll.initTheGame();
 		}
-		//		KML_Logger kmll= new KML_Logger();
-		//		kmll.setGameNumber(0);
-		//		kmll.initTheGame();
+//				KML_Logger kmll= new KML_Logger();
+//				kmll.setGameNumber(0);
+//				kmll.initTheGame();
 
 	}
 
