@@ -210,10 +210,10 @@ public class KML_Logger implements Runnable{
 		}
 	}
 	public void addToTheRobots(String str) {
-		theRobots+=str;
+		theRobots=theRobots.concat(str);
 	}
 	public void addToTheFruits(String str) {
-		theFruits+=str;
+		theFruits=theFruits.concat(str);
 	}
 
 	/**

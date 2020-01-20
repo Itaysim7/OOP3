@@ -260,9 +260,6 @@ public class MyGameGUI implements Runnable
 				}
 				draw();
 				if(this.saveAsKml.equals("yes")) {
-					create.update(game);
-					fruits=create.creatFruits();
-					robots=create.creatRobotsList();
 					for(int i=0;i<robots.size();i++) 
 						kml.addToTheRobots(kml.robotConverseToKml(robots.get(i),(timeOfGame-game.timeToEnd())/1000));
 					for(int i=0;i<fruits.size();i++) 
@@ -279,10 +276,10 @@ public class MyGameGUI implements Runnable
 			//				{
 			//					e.printStackTrace();
 			//				}
-			if(this.saveAsKml.equals("yes")) 
-				kml.saveKmlFromGUI();
 		}		
 		String results = game.toString();
 		System.out.println("Game Over: "+results);
+		if(this.saveAsKml.equals("yes")) 
+			kml.saveKmlFromGUI();
 	}
 }
