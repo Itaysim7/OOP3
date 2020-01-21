@@ -29,6 +29,9 @@ import utils.StdDraw;
 public class SimpleGameClient {
 	public static void main(String[] a)
 	{
+			//////Select ID////
+//			int id=Integer.parseInt(JOptionPane.showInputDialog("Enter your ID"));
+//			Game_Server.login(id);
 			//////choose level////
 			Object level[]=new Object[24];
 			for(int i=0;i<level.length;i++)

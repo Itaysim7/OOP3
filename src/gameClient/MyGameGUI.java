@@ -236,7 +236,6 @@ public class MyGameGUI implements Runnable
 
 		while(game.isRunning())
 		{
-			a.update(game, fruits, robots);
 			synchronized(this) 
 			{
 				if(this.saveAsKml.equals("yes")) {
@@ -258,28 +257,30 @@ public class MyGameGUI implements Runnable
 					m.update(game, fruits, robots);
 					m.moveRobotsbyMouse();
 				}
-				draw();
-				if(this.saveAsKml.equals("yes")) {
-					for(int i=0;i<robots.size();i++) 
-						kml.addToTheRobots(kml.robotConverseToKml(robots.get(i),(timeOfGame-game.timeToEnd())/1000));
-					for(int i=0;i<fruits.size();i++) 
-						kml.addToTheFruits(kml.fruitConverseToKml(fruits.get(i),(timeOfGame-game.timeToEnd())/1000));
-				}
-
 			}
-
-			//				try
-			//				{
-			//					Thread.sleep(100);
-			//				}
-			//				catch(InterruptedException e)
-			//				{
-			//					e.printStackTrace();
-			//				}
+			draw();
+			if(this.saveAsKml.equals("yes")) {
+				for(int i=0;i<robots.size();i++) 
+					kml.addToTheRobots(kml.robotConverseToKml(robots.get(i),(timeOfGame-game.timeToEnd())/1000));
+				for(int i=0;i<fruits.size();i++) 
+					kml.addToTheFruits(kml.fruitConverseToKml(fruits.get(i),(timeOfGame-game.timeToEnd())/1000));
+			}
+			try
+			{
+				Thread.sleep(100);
+			}
+			catch(InterruptedException e)
+			{
+				e.printStackTrace();
+			}
 		}		
 		String results = game.toString();
-		System.out.println("Game Over: "+results);
 		if(this.saveAsKml.equals("yes")) 
+		{
 			kml.saveKmlFromGUI();
+			game.sendKML(scenario+".kml");
+		}
+		System.out.println("Game Over: "+results);
+
 	}
 }

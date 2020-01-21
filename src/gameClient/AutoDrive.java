@@ -70,10 +70,16 @@ public class AutoDrive
 			}
 			for(int i=0;i<log.size();i++) //for each robots find his next destination 
 			{
+				String robot_json = log.get(i);
 				try {
-					int rid=robots.get(i).getId();
-					int src=robots.get(i).getSrc();
-					int dest=robots.get(i).getDest();
+					JSONObject line = new JSONObject(robot_json);
+					JSONObject ttt = line.getJSONObject("Robot");
+					int rid = ttt.getInt("id");
+					int src = ttt.getInt("src");
+					int dest = ttt.getInt("dest");
+//					int rid = robots.get(i).getId();
+//					int src = robots.get(i).getSrc();
+//					int dest = robots.get(i).getDest();
 					if(dest==-1) 
 					{	
 						dest = bestNode(src,destList); //find the closet fruit
