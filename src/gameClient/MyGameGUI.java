@@ -38,6 +38,7 @@ public class MyGameGUI implements Runnable
 	private KML_Logger kml;
 	private boolean firstRun =true;
 	private long timeOfGame;
+	private int id;
 
 	public MyGameGUI(game_service game1,int scenario1,String typegame1,DGraph g1,String iskml)
 	{
