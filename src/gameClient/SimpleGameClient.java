@@ -30,8 +30,8 @@ public class SimpleGameClient {
 	public static void main(String[] a)
 	{
 			//////Select ID////
-//			int id=Integer.parseInt(JOptionPane.showInputDialog("Enter your ID"));
-//			Game_Server.login(id);
+			int id=Integer.parseInt(JOptionPane.showInputDialog("Enter your ID"));
+			Game_Server.login(id);
 			//////choose level////
 			Object level[]=new Object[24];
 			for(int i=0;i<level.length;i++)
@@ -47,7 +47,7 @@ public class SimpleGameClient {
 			//////create graph and algo graph////
 			DGraph g=new DGraph();
 			g.init(game.getGraph());
-			MyGameGUI gui=new MyGameGUI(game,scenario,typegame,g,kml);
+			MyGameGUI gui=new MyGameGUI(game,scenario,typegame,g,kml,id);
 
 		}
 

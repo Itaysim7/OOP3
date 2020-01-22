@@ -40,8 +40,9 @@ public class MyGameGUI implements Runnable
 	private long timeOfGame;
 	private int id;
 
-	public MyGameGUI(game_service game1,int scenario1,String typegame1,DGraph g1,String iskml)
+	public MyGameGUI(game_service game1,int scenario1,String typegame1,DGraph g1,String iskml,int id1)
 	{
+		id=id1;
 		StdDraw.enableDoubleBuffering();
 		game=game1;scenario=scenario1;typegame=typegame1;g=g1;saveAsKml=iskml;
 		if(saveAsKml.equals("yes")) {
@@ -282,6 +283,8 @@ public class MyGameGUI implements Runnable
 			game.sendKML(scenario+".kml");
 		}
 		System.out.println("Game Over: "+results);
+		SimpleDB sdb=new SimpleDB();
+		sdb.StringForGUI(scenario, id);
 
 	}
 }
