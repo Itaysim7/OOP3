@@ -101,6 +101,10 @@ public class SimpleDB {
 		}
 		return ans;
 	}
+	/**
+	 * print all users id
+	 * @return how many ids there are
+	 */
 	public static int allUsers() {
 		int ans = 0;
 		String allCustomersQuery = "SELECT * FROM Users;";
@@ -134,8 +138,8 @@ public class SimpleDB {
 
 
 
-	/** simply prints all the games as played by the users (in the database).
-	 * 
+	/** 
+	 * count how many games we play and save which game are we, and all our the best score on the level we past.
 	 */
 	public static void ourLog(int id,SavingScore userBestResult[])
 	{
@@ -173,7 +177,10 @@ public class SimpleDB {
 			e.printStackTrace();
 		}
 	}
-
+ 
+	/**
+	 * init the data of the criterions to pass the level for each level.
+	 */
 
 	private static void initData() 
 	{
@@ -194,6 +201,10 @@ public class SimpleDB {
 				data[i]=new SavingScore(i,0,Integer.MAX_VALUE);
 		}
 	}
+	
+	/**
+	 * print the results given the global data(data,maxlevel,count) and the user best result data. 
+	 */
 	private static void printResult(SavingScore [] userBestResult) 
 	{
 		System.out.println("Number of game by the user: "+count);
@@ -211,6 +222,11 @@ public class SimpleDB {
 				System.out.println(userBestResult[i].toStringLevelScore());
 		}
 	}
+	/**
+	 * print our place in class in each level
+	 * @param id
+	 * @param userBestResult
+	 */
 	public static void placeInClass(int id,SavingScore userBestResult[]) 
 	{
 		int levels[]= {0,1,3,5,9,11,13,16,19,20,23};
@@ -219,7 +235,13 @@ public class SimpleDB {
 			System.out.println(PlaceInClassInLevel(levels[i],id,userBestResult[levels[i]]));
 		}
 	}
-
+/**
+ * 
+ * @param level
+ * @param id
+ * @param userBestResult
+ * @return our place in class by the level
+ */
 	private static String PlaceInClassInLevel(int level,int id,SavingScore userBestResult) 
 	{
 		try {
@@ -261,6 +283,12 @@ public class SimpleDB {
 		return "couldnt run the function";
 
 	}
+	/**
+	 * created for the GUI, print the user max level,how many games he play,the best score on the level he past, and his place in class in each level.
+	 * @param level
+	 * @param id1
+	 */
+	
 	public void StringForGUI(int level,int id1) 
 	{
 		initData();
