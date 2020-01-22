@@ -26,6 +26,7 @@ Table of maximum grade for each level by the auto drive :
 Example for the GUI window :
 
 ![23](https://user-images.githubusercontent.com/46937549/72663574-d23d5c80-39fc-11ea-9541-07dcb71c7b35.jpg)
+
 Example for data about the user :
 
 ![DB](https://user-images.githubusercontent.com/57639675/72880774-2a7ba380-3d08-11ea-924c-2c5d35b8b6b3.png)
