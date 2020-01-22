@@ -20,23 +20,21 @@ public class SimpleDB {
 	private static int count =0;
 	private static int maxlevel=0;
 	private static SavingScore data []=new SavingScore[24];
-
-
 	/**
 	 * Simple main for demonstrating the use of the Data-base
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		int id1 = 205666407;  // "dummy existing ID  
-		int level = 23;
+//		int level = 23;
 		initData();
 		SavingScore userBestResult []=new SavingScore[24];
 		for(int i=0;i<userBestResult.length;i++) {
 			userBestResult[i]=new SavingScore(i,0,0);
 		}
 		ourLog(id1,userBestResult);
-		printResult(userBestResult);
-		placeInClass(id1,userBestResult);
+		System.out.println(printResult(userBestResult));
+		System.out.println(placeInClass(id1,userBestResult));
 		//			allUsers();
 		//			printLog();
 		//			String kml = getKML(id1,level);
@@ -132,12 +130,6 @@ public class SimpleDB {
 		}
 		return ans;
 	}
-
-
-
-
-
-
 	/** 
 	 * count how many games we play and save which game are we, and all our the best score on the level we past.
 	 */
@@ -161,6 +153,7 @@ public class SimpleDB {
 					double score=resultSet.getDouble("score");
 					int moves=resultSet.getInt("moves");
 					if(score>userBestResult[levelID].getScore()&&score>=data[levelID].getScore()&&moves<=data[levelID].getMoves())
+						//update the userBestResult if the score is better and the user past the test
 						userBestResult[levelID]=new SavingScore(levelID,score,moves);
 				}
 			}
@@ -205,35 +198,43 @@ public class SimpleDB {
 	/**
 	 * print the results given the global data(data,maxlevel,count) and the user best result data. 
 	 */
-	private static void printResult(SavingScore [] userBestResult) 
+	private static String printResult(SavingScore [] userBestResult) 
 	{
-		System.out.println("Number of game by the user: "+count);
+		
+		String str="Number of game by the user: "+count+"\n";
 		if(userBestResult[maxlevel].getScore()>0)
 		{
 			if(maxlevel==23)
-				System.out.println("The user succeeded all the level");
+				str+="The user succeeded all the level"+"\n";
 			else
-				System.out.println("Your max level is:"+(maxlevel+1));
+				str+="Your max level is:"+(maxlevel+1)+"\n";
 		}
 		else
-			System.out.println("Your max level is:"+maxlevel);
-		for(int i=0;i<userBestResult.length;i++) {
+			str+="Your max level is:"+maxlevel+"\n";
+		for(int i=0;i<userBestResult.length;i++) 
+		{
 			if(userBestResult[i].getScore()>0)
-				System.out.println(userBestResult[i].toStringLevelScore());
+				str+=userBestResult[i].toStringLevelScore()+"\n";
+			else
+				if(i==0||i==1||i==3||i==5||i==9||i==11||i==13||i==16||i==19||i==20||i==23)
+					str+="The best score for level "+i+" is 0.0"+"\n";
 		}
+		return str;
 	}
 	/**
 	 * print our place in class in each level
 	 * @param id
 	 * @param userBestResult
 	 */
-	public static void placeInClass(int id,SavingScore userBestResult[]) 
+	public static String placeInClass(int id,SavingScore userBestResult[]) 
 	{
+		String str="";
 		int levels[]= {0,1,3,5,9,11,13,16,19,20,23};
 		for(int i=0;i<levels.length;i++)
 		{
-			System.out.println(PlaceInClassInLevel(levels[i],id,userBestResult[levels[i]]));
+			str+=PlaceInClassInLevel(levels[i],id,userBestResult[levels[i]])+"\n";
 		}
+		return str;
 	}
 /**
  * 
@@ -257,10 +258,13 @@ public class SimpleDB {
 				double score=resultSet.getDouble("score");
 				int moves=resultSet.getInt("moves");
 				if(resultSet.getInt("userID")!=id&&level==resultSet.getInt("levelID")) 
+					//we need to look at all the user but me, and we look for the score for this specific level
 				{
 					if(score>userBestResult.getScore()&&score>=data[level].getScore()&&moves<=data[level].getMoves()) {
+						//only if he past the test
 						if(!betterScore.containsKey(resultSet.getInt("userID")))
 						{
+							//if we no already count him and him to the list of users who get better score.
 							betterScore.put(resultSet.getInt("userID"), resultSet.getDouble("score"));
 						}
 					}
@@ -289,7 +293,7 @@ public class SimpleDB {
 	 * @param id1
 	 */
 	
-	public void StringForGUI(int level,int id1) 
+	public String StringForGUI(int level,int id1,int wantToSee) 
 	{
 		initData();
 		SavingScore userBestResult []=new SavingScore[24];
@@ -297,8 +301,11 @@ public class SimpleDB {
 			userBestResult[i]=new SavingScore(i,0,0);
 		}
 		ourLog(id1,userBestResult);
-		printResult(userBestResult);
-		placeInClass(id1,userBestResult);
+		if(wantToSee==1)
+			return printResult(userBestResult);
+		if(wantToSee==2)
+			return placeInClass(id1,userBestResult);
+		return printResult(userBestResult) +placeInClass(id1,userBestResult);
 	}
 }
 

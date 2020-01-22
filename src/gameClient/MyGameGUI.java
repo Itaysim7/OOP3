@@ -229,12 +229,39 @@ public class MyGameGUI implements Runnable
 			countRobot--;
 		}
 	}
+	/** 
+	 * The function print the result to the user
+	 */
+	private void outPut()
+	{
+		String results = game.toString();
+		if(this.saveAsKml.equals("yes")) 
+		{
+			kml.saveKmlFromGUI();
+			game.sendKML(scenario+".kml");
+		}
+		System.out.println("Game Over: "+results);
+
+		Object result[]=new Object[2];result[0]="yes";result[1]="no";
+		String WantToSee=(String)JOptionPane.showInputDialog(null,"Do you want to see your DB score?","DB score", JOptionPane.QUESTION_MESSAGE,null,result,null);
+		if(WantToSee.equals("yes")) {
+			SimpleDB sdb=new SimpleDB();
+			String str=sdb.StringForGUI(scenario, id,1);
+			JOptionPane.showMessageDialog(null, str);
+		}
+		WantToSee=(String)JOptionPane.showInputDialog(null,"Do you want to see your DB score compare to the class?","DB score", JOptionPane.QUESTION_MESSAGE,null,result,null);
+		if(WantToSee.equals("yes")) {
+			SimpleDB sdb=new SimpleDB();
+			String str=sdb.StringForGUI(scenario, id,2);
+			JOptionPane.showMessageDialog(null, str);
+		}
+	}
 	@Override
 	public void run() 
 	{	
 		game.startGame();
 		AutoDrive a=new AutoDrive(game, fruits, robots);
-		ManualDrive m=new ManualDrive(game, fruits, robots);
+		ManualDrive m=new ManualDrive(game, robots);
 
 		while(game.isRunning())
 		{
@@ -256,7 +283,7 @@ public class MyGameGUI implements Runnable
 				}
 				else	
 				{
-					m.update(game, fruits, robots);
+					m.update(game, robots);
 					m.moveRobotsbyMouse();
 				}
 			}
@@ -276,15 +303,8 @@ public class MyGameGUI implements Runnable
 				e.printStackTrace();
 			}
 		}		
-		String results = game.toString();
-		if(this.saveAsKml.equals("yes")) 
-		{
-			kml.saveKmlFromGUI();
-			game.sendKML(scenario+".kml");
-		}
-		System.out.println("Game Over: "+results);
-		SimpleDB sdb=new SimpleDB();
-		sdb.StringForGUI(scenario, id);
+		outPut();
 
 	}
+	
 }

@@ -11,7 +11,6 @@ import Server.game_service;
 import algorithms.Graph_Algo;
 import dataStructure.DGraph;
 import dataStructure.node_data;
-import obj.Fruit;
 import obj.Pacman;
 import utils.StdDraw;
 
@@ -26,16 +25,14 @@ public class ManualDrive
 	private game_service game;
 	private DGraph g;
 	private Graph_Algo ga;
-	private List<Fruit> fruits;
 	private List<Pacman> robots;
 	private int destNode=-1;
 	private int destByMouse;
 	private Pacman move;
 
-	public ManualDrive(game_service game1,List<Fruit> f,List<Pacman> p) 
+	public ManualDrive(game_service game1,List<Pacman> p) 
 	{
 		this.game=game1;
-		fruits=f;
 		robots=p;
 		g=new DGraph();
 		g.init(game.getGraph());
@@ -48,10 +45,9 @@ public class ManualDrive
 	 * @param f - the update list of fruits
 	 * @param p - the update list of Pacman
 	 */
-	public  void update(game_service game1,List<Fruit> f,List<Pacman> p)
+	public  void update(game_service game1,List<Pacman> p)
 	{
 		this.game=game1;
-		fruits=f;
 		robots=p;
 	}
 	
